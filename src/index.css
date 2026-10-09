@@ -1,0 +1,748 @@
+/* ==========================================================================
+   MOUNT SUMMER / SCHOOL PORTAL - CLAYMORPHISM DESIGN SYSTEM
+   Theme: Prestige Academy & Holistic Learning
+   Tactile 3D Claymorphism: Soft volumetric shadows, inset light-reflecting curves,
+   pillowy surfaces, seamless responsive adaptation across mobile, tablet, desktop.
+   ========================================================================== */
+
+:root {
+  /* Tactile & Prestigious Academic Color Palette */
+  --color-primary: #1e1b4b;
+  /* Deep Scholarly Indigo Clay */
+  --color-primary-light: #312e81;
+  /* Royal Indigo */
+  --color-primary-dark: #0f172a;
+  /* Midnight Slate */
+
+  --color-accent: #d97706;
+  /* Radiant Amber Clay */
+  --color-accent-light: #f59e0b;
+  /* Warm Sunlight Clay */
+  --color-accent-hover: #b45309;
+  /* Deep Burnished Clay */
+  --color-accent-soft: rgba(217, 119, 6, 0.16);
+
+  --color-teal: #0d9488;
+  /* Academic Vitality Teal Clay */
+  --color-teal-light: #2dd4bf;
+  --color-teal-soft: rgba(13, 148, 136, 0.14);
+
+  --color-bg-main: #edf2f7;
+  /* Soft Tactile Slate Clay Foundation */
+  --color-bg-card: #fcfdfe;
+  /* Luminous Alabaster Clay Card */
+  --color-bg-alt: #e2e8f0;
+  /* Matte Pebble Clay Section Background */
+  --color-border: rgba(255, 255, 255, 0.85);
+  --color-border-focus: #f59e0b;
+
+  --color-text-main: #0f172a;
+  /* Deep Slate (Contrast > 8:1) */
+  --color-text-muted: #475569;
+  /* Refined Slate */
+  --color-text-light: #94a3b8;
+  --color-text-inverse: #ffffff;
+
+  --color-success: #059669;
+  /* Emerald Clay */
+  --color-success-bg: #ecfdf5;
+  --color-warning: #d97706;
+  /* Warm Amber */
+  --color-warning-bg: #fffbeb;
+  --color-error: #dc2626;
+  /* Crimson Red */
+  --color-error-bg: #fef2f2;
+  --color-info: #2563eb;
+  /* Royal Sapphire Blue */
+  --color-info-bg: #eff6ff;
+
+  /* Typography */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Authentic 3D Claymorphism Elevation Shadows */
+  --clay-card:
+    12px 18px 30px rgba(160, 174, 196, 0.45),
+    -10px -10px 24px rgba(255, 255, 255, 0.95),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.9),
+    inset -3px -3px 6px rgba(160, 174, 196, 0.25);
+
+  --clay-card-hover:
+    16px 24px 38px rgba(160, 174, 196, 0.55),
+    -12px -12px 28px rgba(255, 255, 255, 1),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.95),
+    inset -3px -3px 7px rgba(160, 174, 196, 0.3);
+
+  --clay-card-pressed:
+    inset 4px 4px 8px rgba(160, 174, 196, 0.5),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.95);
+
+  --clay-btn-primary:
+    6px 10px 22px rgba(217, 119, 6, 0.45),
+    -4px -4px 12px rgba(255, 255, 255, 0.75),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.55),
+    inset -3px -3px 6px rgba(180, 83, 9, 0.55);
+
+  --clay-btn-secondary:
+    6px 10px 22px rgba(30, 27, 75, 0.38),
+    -4px -4px 12px rgba(255, 255, 255, 0.65),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.35),
+    inset -3px -3px 6px rgba(15, 12, 40, 0.65);
+
+  --clay-badge:
+    4px 6px 12px rgba(160, 174, 196, 0.35),
+    -3px -3px 8px rgba(255, 255, 255, 0.9),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.8),
+    inset -2px -2px 4px rgba(160, 174, 196, 0.2);
+
+  --clay-dark-card:
+    14px 20px 36px rgba(5, 10, 20, 0.45),
+    -8px -8px 20px rgba(255, 255, 255, 0.05),
+    inset 2px 2px 5px rgba(255, 255, 255, 0.15),
+    inset -2px -2px 6px rgba(0, 0, 0, 0.45);
+
+  /* Radius (Smooth organic curves for tactile clay effect) */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* Layout */
+  --max-width: 1240px;
+  --header-height: 74px;
+}
+
+/* Base Reset & Native Scrolling Guarantees */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: var(--font-body);
+  color: var(--color-text-main);
+  background-color: var(--color-bg-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Accessibility Focus States */
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -60px;
+  left: 20px;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 10px 18px;
+  z-index: 9999;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--clay-btn-secondary);
+  transition: top 0.25s ease;
+}
+
+.skip-link:focus {
+  top: 15px;
+}
+
+/* Typography styles */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+p {
+  color: var(--color-text-main);
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* Containers */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Sections */
+.section {
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding-top: 3.25rem;
+    padding-bottom: 3.25rem;
+  }
+}
+
+.section-alt {
+  background-color: var(--color-bg-alt);
+}
+
+.section-dark {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+}
+
+.section-header {
+  text-align: center;
+  max-width: 780px;
+  margin: 0 auto 3.5rem auto;
+}
+
+@media (max-width: 768px) {
+  .section-header {
+    margin-bottom: 2.5rem;
+  }
+}
+
+.section-tagline {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
+  margin-bottom: 0.75rem;
+  background: rgba(217, 119, 6, 0.14);
+  padding: 0.4rem 0.95rem;
+  border-radius: var(--radius-full);
+  box-shadow: var(--clay-badge);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.section-description {
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+/* Claymorphic Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.85rem;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+  line-height: 1;
+}
+
+.btn-primary {
+  background: linear-gradient(145deg, #f59e0b, #d97706);
+  color: #ffffff;
+  box-shadow: var(--clay-btn-primary);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(145deg, #fbbf24, #b45309);
+  transform: translateY(-2px);
+  box-shadow:
+    8px 14px 26px rgba(217, 119, 6, 0.52),
+    -4px -4px 12px rgba(255, 255, 255, 0.85),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.65),
+    inset -3px -3px 6px rgba(180, 83, 9, 0.6);
+  color: #ffffff;
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: var(--clay-card-pressed);
+}
+
+.btn-secondary {
+  background: linear-gradient(145deg, #3730a3, #1e1b4b);
+  color: #ffffff;
+  box-shadow: var(--clay-btn-secondary);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(145deg, #4338ca, #1e1b4b);
+  transform: translateY(-2px);
+  color: #ffffff;
+  box-shadow:
+    8px 14px 26px rgba(30, 27, 75, 0.45),
+    -4px -4px 12px rgba(255, 255, 255, 0.75),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.45),
+    inset -3px -3px 6px rgba(15, 12, 40, 0.7);
+}
+
+.btn-outline {
+  background: linear-gradient(145deg, #ffffff, #eef2f7);
+  color: var(--color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    6px 8px 18px rgba(160, 174, 196, 0.35),
+    -5px -5px 14px rgba(255, 255, 255, 0.95),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.9),
+    inset -2px -2px 4px rgba(160, 174, 196, 0.2);
+}
+
+.btn-outline:hover {
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow:
+    8px 12px 22px rgba(160, 174, 196, 0.45),
+    -6px -6px 16px #ffffff,
+    inset 2px 2px 4px rgba(255, 255, 255, 0.95);
+  color: var(--color-accent);
+}
+
+.btn-outline-white {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  box-shadow:
+    6px 10px 22px rgba(0, 0, 0, 0.3),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.btn-outline-white:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-2px);
+  color: #ffffff;
+}
+
+.btn-sm {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.85rem;
+}
+
+/* Claymorphic Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.775rem;
+  font-weight: 700;
+  padding: 0.42rem 0.95rem;
+  border-radius: var(--radius-full);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--clay-badge);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+}
+
+.badge-info {
+  background: linear-gradient(135deg, #e0edff, #bfdbfe);
+  color: #1e40af;
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #e6f7f0, #a7f3d0);
+  color: #065f46;
+}
+
+.badge-neutral {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  color: var(--color-text-muted);
+}
+
+/* Claymorphic Cards */
+.card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem;
+  box-shadow: var(--clay-card);
+  border: 2px solid var(--color-border);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--clay-card-hover);
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* Grids */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+}
+
+@media (min-width: 640px) {
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Claymorphic Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  z-index: 1000;
+  animation: fadeIn 0.25s ease;
+}
+
+.modal-card {
+  background: #f8fafd;
+  border-radius: 30px;
+  max-width: 560px;
+  width: 100%;
+  padding: 2.5rem;
+  box-shadow:
+    18px 26px 52px rgba(15, 23, 42, 0.25),
+    -10px -10px 30px rgba(255, 255, 255, 0.95),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.95),
+    inset -3px -3px 8px rgba(160, 174, 196, 0.25);
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  position: relative;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 640px) {
+  .modal-card {
+    padding: 1.75rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Claymorphic Forms */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.95rem 1.35rem;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  background: #eef2f7;
+  color: var(--color-text-main);
+  box-shadow:
+    inset 3px 3px 6px rgba(160, 174, 196, 0.4),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.95),
+    0 2px 5px rgba(160, 174, 196, 0.15);
+  transition: all 0.25s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  background: #fcfdfe;
+  border-color: var(--color-accent-light);
+  box-shadow:
+    inset 2px 2px 4px rgba(217, 119, 6, 0.2),
+    0 0 0 4px rgba(217, 119, 6, 0.18),
+    4px 6px 14px rgba(160, 174, 196, 0.25);
+}
+
+textarea.form-control {
+  min-height: 130px;
+  resize: vertical;
+}
+
+/* Claymorphic Notice Box */
+.notice-box {
+  background: #f8fafd;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--clay-card);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-left: 6px solid var(--color-accent);
+}
+
+.notice-box.warning {
+  border-left-color: var(--color-warning);
+  background: #fffdf5;
+}
+
+.notice-box.info {
+  border-left-color: var(--color-info);
+  background: #f4f8ff;
+}
+
+/* ==========================================================================
+   MASCOT ASSISTANT STYLING & ANIMATIONS (Barnaby)
+   ========================================================================== */
+
+.mascot-character-art {
+  animation: mascotGentleFloat 4.2s ease-in-out infinite;
+}
+
+@keyframes mascotGentleFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.mascot-anim-wave {
+  transform-origin: 22px 50px;
+  animation: barnabyWave 1.25s ease-in-out infinite;
+}
+
+@keyframes barnabyWave {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(-16deg);
+  }
+}
+
+.mascot-anim-point {
+  transform-origin: 75px 52px;
+  animation: barnabyPoint 1.8s ease-in-out infinite;
+}
+
+@keyframes barnabyPoint {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.06) translate(-1px, -2px);
+  }
+}
+
+.mascot-anim-cheer-left {
+  transform-origin: 22px 50px;
+  animation: cheerLeft 1.2s ease-in-out infinite;
+}
+
+.mascot-anim-cheer-right {
+  transform-origin: 78px 50px;
+  animation: cheerRight 1.2s ease-in-out infinite;
+}
+
+@keyframes cheerLeft {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(-12deg);
+  }
+}
+
+@keyframes cheerRight {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(12deg);
+  }
+}
+
+.mascot-tuft-left {
+  transform-origin: 26px 36px;
+  animation: tuftWiggle 3.5s ease-in-out infinite;
+}
+
+.mascot-tuft-right {
+  transform-origin: 74px 36px;
+  animation: tuftWiggle 3.5s ease-in-out infinite reverse;
+}
+
+@keyframes tuftWiggle {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.mascot-speech-bubble {
+  border-radius: 24px;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+
+  .mascot-character-art,
+  .mascot-anim-wave,
+  .mascot-anim-point,
+  .mascot-anim-cheer-left,
+  .mascot-anim-cheer-right,
+  .mascot-tuft-left,
+  .mascot-tuft-right,
+  .mascot-speech-bubble,
+  .mascot-intelligent-companion {
+    animation: none !important;
+    transition: none !important;
+  }
+}
