@@ -88,10 +88,10 @@ export const HomePage = () => {
       <section
         data-section-id="hero"
         style={{
-          background: 'linear-gradient(180deg, #0f1e36 0%, #152542 100%)',
+          background: 'linear-gradient(180deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)',
           color: '#ffffff',
-          paddingTop: '5.5rem',
-          paddingBottom: '5.5rem',
+          paddingTop: '4.5rem',
+          paddingBottom: '4.5rem',
           position: 'relative',
           overflow: 'hidden'
         }}
@@ -105,7 +105,7 @@ export const HomePage = () => {
             width: '600px',
             height: '600px',
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(201, 138, 44, 0.15) 0%, rgba(15, 30, 54, 0) 70%)',
+            background: 'radial-gradient(circle, rgba(244, 160, 36, 0.16) 0%, rgba(22, 17, 58, 0) 70%)',
             pointerEvents: 'none'
           }}
         />
@@ -142,14 +142,14 @@ export const HomePage = () => {
                 color: '#cbd5e1',
                 fontSize: 'clamp(1.1rem, 2vw, 1.35rem)',
                 fontWeight: 400,
-                marginBottom: '2rem',
+                marginBottom: 'clamp(1.25rem, 2.5vw, 1.85rem)',
                 lineHeight: 1.6
               }}
             >
               {HERO_DATA.tagline}
             </p>
 
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.08)', padding: '0.5rem 1.25rem', borderRadius: 'var(--radius-full)', marginBottom: '2.5rem', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.08)', padding: '0.5rem 1.25rem', borderRadius: 'var(--radius-full)', marginBottom: 'clamp(1.5rem, 3vw, 2.25rem)', border: '1px solid rgba(255,255,255,0.12)' }}>
               <span style={{ color: 'var(--color-accent-light)', fontWeight: 600 }}>{HERO_DATA.prompt}</span>
             </div>
 
@@ -178,7 +178,7 @@ export const HomePage = () => {
           </div>
 
           {/* 4 Hero Categories Cards */}
-          <div style={{ marginTop: '4.5rem' }}>
+          <div style={{ marginTop: 'clamp(2.75rem, 5vw, 4.5rem)' }}>
             <div className="grid-4">
               {HERO_DATA.categories.map((cat) => (
                 <div
@@ -188,12 +188,12 @@ export const HomePage = () => {
                   data-helper-description={cat.description}
                   data-helper-example={`Click to explore ${cat.title}`}
                   style={{
-                    background: 'linear-gradient(145deg, #1e293b, #0f172a)',
-                    border: '2px solid rgba(255, 255, 255, 0.14)',
+                    background: 'linear-gradient(145deg, #302764 0%, #211B52 100%)',
+                    border: '1.5px solid rgba(244, 160, 36, 0.22)',
                     boxShadow: 'var(--clay-dark-card)',
-                    borderRadius: '24px',
+                    borderRadius: 'var(--radius-card)',
                     color: '#ffffff',
-                    padding: '1.85rem'
+                    padding: '1.5rem'
                   }}
                 >
                   <div style={{ marginBottom: '1rem' }}>
@@ -362,9 +362,10 @@ export const HomePage = () => {
                 data-helper-description={`Submit questions regarding curricula or institutional policies to the ${lead.role}.`}
                 data-helper-example="Opens informational inquiry dialogue"
                 style={{
-                  background: 'linear-gradient(135deg, #f8fafc, #ffffff)',
-                  border: '1px solid var(--color-border)',
-                  padding: '2rem'
+                  background: 'linear-gradient(168deg, #FFFEFC 0%, #FAF5EC 100%)',
+                  border: '1.5px solid rgba(255, 255, 255, 0.9)',
+                  borderRadius: 'var(--radius-card)',
+                  padding: '1.75rem'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>

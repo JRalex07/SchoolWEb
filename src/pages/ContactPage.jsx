@@ -1,15 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSchoolConfig } from '../context/SchoolConfigContext';
 import { useMascot } from '../context/MascotContext';
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Clock, 
-  Send, 
-  Info, 
-  ShieldCheck, 
-  AlertCircle 
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Send,
+  Info,
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 
 export const ContactPage = () => {
@@ -27,13 +27,53 @@ export const ContactPage = () => {
   const [errors, setErrors] = useState({});
   const debounceTimers = useRef({});
 
-  // Field change with debounced mascot validation coach
+  // Field-specific validation helper
+  const validateField = (fieldName, value) => {
+    let err = null;
+    const trimmed = (value || '').trim();
+
+    if (fieldName === 'fullName') {
+      if (!trimmed) {
+        err = 'Please provide your full name before continuing.';
+      } else if (trimmed.length < 2) {
+        err = 'Names typically contain at least 2 characters.';
+      }
+    } else if (fieldName === 'email') {
+      if (!trimmed) {
+        err = 'Email address is required for official communication.';
+      } else if (!trimmed.includes('@')) {
+        err = "Enter an address in the format name@example.com, with a username, an @ symbol, and a domain.";
+      } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)) {
+        err = 'Enter an address in the format name@example.com, with a username, an @ symbol, and a valid domain.';
+      }
+    } else if (fieldName === 'message') {
+      if (!trimmed) {
+        err = 'Please write your message before submitting.';
+      } else if (trimmed.length < 10) {
+        err = 'Please provide a bit more detail (at least 10 characters).';
+      }
+    }
+
+    setErrors(prev => {
+      const next = { ...prev };
+      if (err) {
+        next[fieldName] = err;
+      } else {
+        delete next[fieldName];
+      }
+      return next;
+    });
+
+    return !err;
+  };
+
+  // Field change with debounced mascot validation coach (450ms deliberate pause)
   const onInputChange = (fieldName, value, e = null) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
 
     const rect = e?.target ? e.target.getBoundingClientRect() : null;
 
-    // Clear inline error if field was marked invalid
+    // Clear inline error if field was marked invalid while user is typing
     if (errors[fieldName]) {
       setErrors(prev => {
         const next = { ...prev };
@@ -47,11 +87,27 @@ export const ContactPage = () => {
     }
 
     debounceTimers.current[fieldName] = setTimeout(() => {
-      // Validate with Mascot Form Coach
+      // Validate with Mascot Form Coach on deliberate typing pause (approx 1s)
       handleFieldChange(fieldName, value, (suggestedVal) => {
         setFormData(prev => ({ ...prev, [fieldName]: suggestedVal }));
       }, rect);
-    }, 240);
+    }, 900);
+  };
+
+  // Clean up all pending debounce timers on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(debounceTimers.current).forEach(t => clearTimeout(t));
+    };
+  }, []);
+
+  const handleInputBlur = (fieldName) => {
+    if (debounceTimers.current[fieldName]) {
+      clearTimeout(debounceTimers.current[fieldName]);
+    }
+    // Validate on blur to ensure inline error is placed appropriately
+    validateField(fieldName, formData[fieldName]);
+    clearFieldFocus(fieldName);
   };
 
   const validate = () => {
@@ -113,94 +169,106 @@ export const ContactPage = () => {
 
   return (
     <main id="main-content">
-      {/* Header */}
-      <section style={{ background: 'var(--color-primary)', color: '#ffffff', padding: '4rem 0 3.5rem 0' }}>
+      {/* Header Banner */}
+      <section style={{ background: 'linear-gradient(175deg, #16113A 0%, #211B52 100%)', color: '#ffffff', padding: '3.25rem 0 2.75rem 0', position: 'relative' }}>
         <div className="container">
-          <span className="badge" style={{ background: 'rgba(201, 138, 44, 0.25)', color: 'var(--color-accent-light)', border: '1px solid rgba(201,138,44,0.4)', marginBottom: '1rem' }}>
+          <span className="badge" style={{ background: 'rgba(244, 160, 36, 0.22)', color: 'var(--color-accent)', border: '1px solid rgba(244, 160, 36, 0.4)', marginBottom: '0.75rem' }}>
             Get in Touch
           </span>
-          <h1 style={{ color: '#ffffff', fontSize: '2.75rem', marginBottom: '1rem' }}>
+          <h1 style={{ color: '#ffffff', fontSize: 'clamp(1.85rem, 4vw, 2.45rem)', marginBottom: '0.65rem', letterSpacing: '-0.02em' }}>
             Contact & Location Details
           </h1>
-          <p style={{ color: '#cbd5e1', fontSize: '1.15rem', maxWidth: '720px', lineHeight: 1.6, margin: 0 }}>
+          <p style={{ color: '#DDD9E8', fontSize: 'clamp(0.95rem, 1.4vw, 1.05rem)', maxWidth: '680px', lineHeight: 1.6, margin: 0 }}>
             Reach out to our administrative offices, schedule campus visits, or submit general academic inquiries.
           </p>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="section" data-section-id="contact-form-section">
+      <section className="section" data-section-id="contact-form-section" style={{ paddingTop: '3rem', paddingBottom: '3.5rem' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: '2rem', alignItems: 'start' }}>
             {/* Configured Contact Info Cards */}
             <div>
-              <h2 style={{ fontSize: '1.85rem', marginBottom: '1.25rem' }}>
+              <h2 style={{ fontSize: '1.45rem', marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
                 Campus Office
               </h2>
-              <p style={{ fontSize: '1rem', lineHeight: 1.7, color: 'var(--color-text-main)', marginBottom: '2rem' }}>
+              <p style={{ fontSize: '0.925rem', lineHeight: 1.6, color: 'var(--color-text-muted)', marginBottom: '1.35rem' }}>
                 Our administrative staff is on hand to address admissions inquiries, academic records, and general questions regarding {config.schoolName}.
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2.5rem' }}>
-                <div 
-                  className="card" 
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem' }}>
+                <div
+                  className="card"
                   data-helper-title="Postal Location"
                   data-helper-description="Verified postal address for administrative correspondence and campus visits."
-                  style={{ padding: '1.5rem', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '1.25rem' }}
+                  style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '1rem', borderRadius: '20px' }}
                 >
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--color-accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <MapPin size={22} color="var(--color-accent)" />
+                  <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'var(--color-accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: 'var(--clay-badge)' }}>
+                    <MapPin size={18} color="var(--color-accent)" />
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1.05rem', margin: 0, marginBottom: '0.25rem' }}>Postal Address</h4>
-                    <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
-                      {config.address}
+                    <h4 style={{ fontSize: '0.95rem', margin: 0, marginBottom: '0.15rem', color: 'var(--color-primary)' }}>Postal Address</h4>
+                    <p style={{ margin: 0, color: 'var(--color-text-muted)', fontSize: '0.875rem', lineHeight: 1.45 }}>
+                      {config.address || 'Campus address available upon administrative request'}
                     </p>
                   </div>
                 </div>
 
-                <div 
+                <div
                   className="card"
                   data-helper-title="Direct Phone Line"
                   data-helper-description="Call our administrative office during standard operational hours."
-                  style={{ padding: '1.5rem', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '1.25rem' }}
+                  style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '1rem', borderRadius: '20px' }}
                 >
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--color-accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Phone size={22} color="var(--color-accent)" />
+                  <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'var(--color-accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: 'var(--clay-badge)' }}>
+                    <Phone size={18} color="var(--color-accent)" />
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1.05rem', margin: 0, marginBottom: '0.25rem' }}>Telephone</h4>
-                    <a href={`tel:${config.phone.replace(/[^0-9+]/g, '')}`} style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.95rem' }}>
-                      {config.phone}
-                    </a>
+                    <h4 style={{ fontSize: '0.95rem', margin: 0, marginBottom: '0.15rem', color: 'var(--color-primary)' }}>Telephone</h4>
+                    {config.phone ? (
+                      <a href={`tel:${config.phone.replace(/[^0-9+]/g, '')}`} style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.9rem' }}>
+                        {config.phone}
+                      </a>
+                    ) : (
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
+                        Telephone details available upon request
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div 
-                  className="card" 
+                <div
+                  className="card"
                   data-helper-title="Official Email"
                   data-helper-description="Send electronic communications and document verification requests."
-                  style={{ padding: '1.5rem', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '1.25rem' }}
+                  style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '1rem', borderRadius: '20px' }}
                 >
-                  <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--color-accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Mail size={22} color="var(--color-accent)" />
+                  <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'var(--color-accent-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: 'var(--clay-badge)' }}>
+                    <Mail size={18} color="var(--color-accent)" />
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1.05rem', margin: 0, marginBottom: '0.25rem' }}>Email Inquiries</h4>
-                    <a href={`mailto:${config.email}`} style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.95rem' }}>
-                      {config.email}
-                    </a>
+                    <h4 style={{ fontSize: '0.95rem', margin: 0, marginBottom: '0.15rem', color: 'var(--color-primary)' }}>Email Inquiries</h4>
+                    {config.email ? (
+                      <a href={`mailto:${config.email}`} style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.9rem' }}>
+                        {config.email}
+                      </a>
+                    ) : (
+                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>
+                        Inquiries accepted via contact form below
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Office Hours Info Box */}
-              <div className="card" style={{ background: '#f8fafc', padding: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <Clock size={18} color="var(--color-accent)" />
-                  <h4 style={{ fontSize: '1.05rem', margin: 0 }}>Standard Administrative Hours</h4>
+              <div className="card" style={{ background: 'linear-gradient(168deg, #FFFEFC 0%, #FAF6EE 100%)', padding: '1.15rem 1.25rem', borderRadius: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.35rem' }}>
+                  <Clock size={16} color="var(--color-accent)" />
+                  <h4 style={{ fontSize: '0.95rem', margin: 0, color: 'var(--color-primary)' }}>Standard Administrative Hours</h4>
                 </div>
-                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', margin: 0 }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.55 }}>
                   Monday – Friday: 8:00 AM – 3:30 PM<br />
                   Saturday: 8:00 AM – 1:00 PM (Administrative office only)<br />
                   Sunday & Gazetted Holidays: Closed
@@ -210,11 +278,11 @@ export const ContactPage = () => {
 
             {/* Interactive Contact Form with Mascot Validation Coach */}
             <div>
-              <div className="card" style={{ padding: '2.5rem', borderTop: '5px solid var(--color-accent)' }}>
-                <h3 style={{ fontSize: '1.45rem', marginBottom: '0.75rem' }}>
+              <div className="card" style={{ padding: '1.75rem 2rem', borderTop: '4px solid var(--color-accent)' }}>
+                <h3 style={{ fontSize: '1.35rem', marginBottom: '0.35rem', color: 'var(--color-primary)' }}>
                   Send an Inquiry
                 </h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>
                   Complete the fields below to simulate or send a general administrative inquiry.
                 </p>
 
@@ -229,7 +297,7 @@ export const ContactPage = () => {
                       value={formData.fullName}
                       onChange={(e) => onInputChange('fullName', e.target.value, e)}
                       onFocus={(e) => setFieldFocus('fullName', e.target.getBoundingClientRect())}
-                      onBlur={() => clearFieldFocus('fullName')}
+                      onBlur={() => handleInputBlur('fullName')}
                       aria-invalid={errors.fullName ? "true" : "false"}
                       aria-describedby={errors.fullName ? "fullName-error" : undefined}
                       required
@@ -251,7 +319,7 @@ export const ContactPage = () => {
                       value={formData.email}
                       onChange={(e) => onInputChange('email', e.target.value, e)}
                       onFocus={(e) => setFieldFocus('email', e.target.getBoundingClientRect())}
-                      onBlur={() => clearFieldFocus('email')}
+                      onBlur={() => handleInputBlur('email')}
                       aria-invalid={errors.email ? "true" : "false"}
                       aria-describedby={errors.email ? "email-error" : undefined}
                       required
@@ -273,7 +341,7 @@ export const ContactPage = () => {
                       value={formData.phone}
                       onChange={(e) => onInputChange('phone', e.target.value, e)}
                       onFocus={(e) => setFieldFocus('phone', e.target.getBoundingClientRect())}
-                      onBlur={() => clearFieldFocus('phone')}
+                      onBlur={() => handleInputBlur('phone')}
                     />
                   </div>
 
@@ -287,7 +355,7 @@ export const ContactPage = () => {
                       value={formData.subject}
                       onChange={(e) => onInputChange('subject', e.target.value, e)}
                       onFocus={(e) => setFieldFocus('subject', e.target.getBoundingClientRect())}
-                      onBlur={() => clearFieldFocus('subject')}
+                      onBlur={() => handleInputBlur('subject')}
                     />
                   </div>
 
@@ -300,7 +368,7 @@ export const ContactPage = () => {
                       value={formData.message}
                       onChange={(e) => onInputChange('message', e.target.value, e)}
                       onFocus={(e) => setFieldFocus('message', e.target.getBoundingClientRect())}
-                      onBlur={() => clearFieldFocus('message')}
+                      onBlur={() => handleInputBlur('message')}
                       aria-invalid={errors.message ? "true" : "false"}
                       aria-describedby={errors.message ? "message-error" : undefined}
                       required
@@ -312,9 +380,9 @@ export const ContactPage = () => {
                     )}
                   </div>
 
-                  <button 
-                    type="submit" 
-                    className="btn btn-primary" 
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
                     style={{ width: '100%' }}
                     data-helper-title="Submit Contact Inquiry"
                     data-helper-description="Validates form entries and simulates message routing to the administrative desk."

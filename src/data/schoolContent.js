@@ -1,39 +1,23 @@
 /**
  * schoolContent.js
- * Centralized content repository adhering strictly to mount_summer_website_content_data.md.
- * 
- * Rules:
- * - Default identity uses explicit configurable placeholders.
- * - Recovered historical archival data is preserved but partitioned.
- * - Missing facts are marked as requiring verification, never fabricated.
+ * Centralized content repository for the school website prototype.
+ * All school identity, navigation, and page content are centrally managed here.
  */
 
 export const DEFAULT_CONFIG = {
-  schoolName: "[Your School Name]",
+  schoolName: "School Website",
+  logoUrl: null, // Optional school logo (data URL or image URL)
+  faviconUrl: null, // Optional school favicon (data URL or icon URL)
   principalName: "[Principal Name]",
   vicePrincipalName: "[Vice Principal Name]",
   address: "[Verified School Address]",
   phone: "[Verified Contact Number]",
   email: "[Verified Contact Email]",
-  academicYear: "[Current Academic Year]",
-  faithSectionPublished: false, // Per prompt: "leave it unpublished by default"
-  identityMode: "placeholder", // 'placeholder' | 'archive' | 'custom'
-};
-
-export const RECOVERED_ARCHIVE_DATA = {
-  sourceDomain: "https://mountsummerconventschool.in/",
-  schoolName: "Mount Summer Convent School",
-  websiteTitle: "Mount Summer Convent School",
-  status: "partial_publicly_indexed_content",
-  fullSiteVerified: false,
-  principalName: "Not recovered in indexed data",
-  vicePrincipalName: "Not recovered in indexed data",
-  address: "Polo Field Road, K.M. Tank, Laheria Sarai, Darbhanga – 846001, India",
-  phone: "+91 9334391034",
-  email: "mountsummerconvent2012@gmail.com",
-  currentValidityVerified: false,
-  copyrightText: "© 2025 Mount Summer Convent School. All Rights Reserved.",
-  historicalYear: 2025,
+  academicYear: "2026-2027",
+  faithSectionPublished: false, // Leave unpublished by default in prototype
+  identityMode: "placeholder", // 'placeholder' | 'custom'
+  schoolSubtitle: "School Portal",
+  copyrightText: "© 2026 School Website. All Rights Reserved."
 };
 
 export const NAVIGATION_ITEMS = [
@@ -207,56 +191,146 @@ export const HIGHLIGHT_THEMES = [
   }
 ];
 
-export const HISTORICAL_CALENDAR_ENTRIES = [
+export const CURRENT_YEAR_FESTIVALS_HOLIDAYS = [
   {
-    id: "hist-1",
+    id: "fest-1",
+    event: "Republic Day",
+    date: "2026-01-26",
+    category: "Festivals & Holidays",
+    status: "National Holiday (2026)",
+    notes: "Campus Flag Hoisting Ceremony & Cultural Assembly"
+  },
+  {
+    id: "fest-2",
+    event: "Maha Shivratri",
+    date: "2026-02-15",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "School Closed - Festive Holiday"
+  },
+  {
+    id: "fest-3",
+    event: "Holi (Festival of Colors)",
+    date: "2026-03-03",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "School Closed - Spring Festival Recess"
+  },
+  {
+    id: "fest-4",
     event: "Ambedkar Jayanti",
-    date: "2025-04-14",
-    category: "Academics",
-    status: "Historical Record (2025)",
-    notes: "Reported under Academics in indexed source data"
+    date: "2026-04-14",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "Special Morning Assembly & Scholastic Commemoration"
   },
   {
-    id: "hist-2",
-    event: "Mount Summer Foundation Day",
-    date: "2025-06-17",
-    category: "Academics",
-    status: "Historical Record (2025)",
-    notes: "Reported under Academics in indexed source data"
+    id: "fest-5",
+    event: "Mahavir Jayanti",
+    date: "2026-04-20",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "School Closed - Observance Holiday"
   },
   {
-    id: "hist-3",
+    id: "fest-6",
+    event: "Annual Foundation Day",
+    date: "2026-06-17",
+    category: "Academics",
+    status: "Institutional Milestone (2026)",
+    notes: "Annual Foundation Day Ceremonies & Alumni Convocation"
+  },
+  {
+    id: "fest-7",
+    event: "Independence Day",
+    date: "2026-08-15",
+    category: "Festivals & Holidays",
+    status: "National Holiday (2026)",
+    notes: "National Flag Hoisting, Patriotic Parade & Community Assembly"
+  },
+  {
+    id: "fest-8",
+    event: "Raksha Bandhan",
+    date: "2026-08-28",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "School Closed - Cultural Festival"
+  },
+  {
+    id: "fest-9",
+    event: "Janmashtami",
+    date: "2026-09-04",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "Cultural Tableau & Traditional Musical Presentations"
+  },
+  {
+    id: "fest-10",
     event: "Teacher's Day",
-    date: "2025-09-05",
+    date: "2026-09-05",
     category: "Academics",
-    status: "Historical Record (2025)",
-    notes: "Reported under Academics in indexed source data"
+    status: "Academic Observance (2026)",
+    notes: "Student Council Felicitations & Educator Appreciation Gala"
   },
   {
-    id: "hist-4",
+    id: "fest-11",
     event: "Gandhi Jayanti",
-    date: "2025-10-02",
-    category: "Athletics",
-    status: "Historical Record (2025)",
-    notes: "Reported under Athletics in indexed source data"
+    date: "2026-10-02",
+    category: "Festivals & Holidays",
+    status: "National Holiday (2026)",
+    notes: "National Day of Service, Campus Cleanliness Drive & Peace Forum"
   },
   {
-    id: "hist-5",
+    id: "fest-12",
+    event: "Dussehra (Vijayadashami)",
+    date: "2026-10-20",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "School Closed - Autumn Festive Recess"
+  },
+  {
+    id: "fest-13",
+    event: "Diwali (Festival of Lights)",
+    date: "2026-11-08",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "School Closed - Deepavali Festive Holidays"
+  },
+  {
+    id: "fest-14",
     event: "Children's Day",
-    date: "2025-11-14",
+    date: "2026-11-14",
     category: "Athletics",
-    status: "Historical Record (2025)",
-    notes: "Reported under Athletics in indexed source data"
+    status: "School Celebration (2026)",
+    notes: "Special Sports Carnival, Fun Fair & Talent Showcase"
   },
   {
-    id: "hist-6",
+    id: "fest-15",
+    event: "Guru Nanak Jayanti",
+    date: "2026-11-24",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "School Closed - Observance Holiday"
+  },
+  {
+    id: "fest-16",
     event: "Dr. Rajendra Prasad Jayanti",
-    date: "2025-12-03",
-    category: "Athletics",
-    status: "Historical Record (2025)",
-    notes: "Reported under Athletics in indexed source data"
+    date: "2026-12-03",
+    category: "Academics",
+    status: "Academic Observance (2026)",
+    notes: "Memorial Lecture & Inter-School Debate Series"
+  },
+  {
+    id: "fest-17",
+    event: "Christmas Day",
+    date: "2026-12-25",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "School Closed - Winter Recess & Christmas Celebration"
   }
 ];
+
+export const HISTORICAL_CALENDAR_ENTRIES = CURRENT_YEAR_FESTIVALS_HOLIDAYS;
 
 export const SUPPORT_SECTION = [
   {

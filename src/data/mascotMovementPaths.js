@@ -63,10 +63,10 @@ export const MOVEMENT_STOPS = {
     id: 'contact-stop',
     label: 'Campus Inquiry & Form',
     sectionId: 'contact-form-section',
-    side: 'right', // Beside the contact form container, clear of inputs and submit button
-    verticalRatio: 0.30,
+    side: 'left', // Beside campus office details, leaving contact form on the right completely unhindered
+    verticalRatio: 0.32,
     minTop: 110,
-    description: 'Right flank beside inquiry form without obstructing any inputs'
+    description: 'Left flank beside campus office details, clear of all contact form inputs'
   },
   'footer-stop': {
     id: 'footer-stop',

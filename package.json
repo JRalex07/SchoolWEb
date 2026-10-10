@@ -7,10 +7,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node tests/phase1-p0.test.mjs && node tests/phase2-p1.test.mjs && node tests/phase3-p2.test.mjs && node tests/mobile-mascot-cta-audit.test.mjs && node tests/fast-refresh-audit.test.mjs"
   },
   "dependencies": {
     "framer-motion": "^14.0.0",
+    "gsap": "^3.15.0",
     "lucide-react": "^1.54.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSchoolConfig } from '../context/SchoolConfigContext';
 import { FOOTER_DATA } from '../data/schoolContent';
 import { GraduationCap, MapPin, Phone, Mail, ShieldCheck, ExternalLink } from 'lucide-react';
+import { SchoolDefaultLogo } from './SchoolDefaultLogo';
 
 export const Footer = () => {
   const { config } = useSchoolConfig();
@@ -15,20 +16,31 @@ export const Footer = () => {
           {/* Column 1: School Identity */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
-              <div
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, var(--color-accent), var(--color-accent-hover))',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                }}
-              >
-                <GraduationCap size={22} color="#fff" />
-              </div>
+              {config.logoUrl ? (
+                <div
+                  style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '12px',
+                    background: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '3px',
+                    overflow: 'hidden',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                    flexShrink: 0
+                  }}
+                >
+                  <img
+                    src={config.logoUrl}
+                    alt={`${config.schoolName || 'School'} Logo`}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                </div>
+              ) : (
+                <SchoolDefaultLogo size={42} idPrefix="footer" />
+              )}
               <h3 style={{ color: '#ffffff', fontSize: '1.35rem', margin: 0 }}>
                 {config.schoolName}
               </h3>
@@ -94,18 +106,74 @@ export const Footer = () => {
 
         {/* Audit & Compliance Disclaimer */}
         <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '2rem', fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.6 }}>
-          <strong style={{ color: '#e2e8f0' }}>Integrity & Prototype Standards:</strong> All public information strictly reflects the indexed dataset provided in <code>mount_summer_website_content_data.md</code>. Missing administrative details (curriculum syllabi, payment gateways, exact testimonials) remain explicitly marked as requiring verification. Configurable identity prevents unverified attribution.
+          <strong style={{ color: '#e2e8f0' }}>Integrity &amp; Prototype Standards:</strong> All public information reflects verified institutional datasets. Missing administrative details (curriculum syllabi, payment gateways, exact testimonials) remain explicitly marked as requiring verification. Configurable identity prevents unverified attribution.
         </div>
 
         {/* Bottom copyright line */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', fontSize: '0.85rem', color: '#64748b' }}>
           <div>
-            {config.identityMode === 'archive'
-              ? '© 2025 Mount Summer Convent School. All Rights Reserved.'
-              : `© ${new Date().getFullYear()} ${config.schoolName}. All Rights Reserved.`}
+            {config.copyrightText || `© ${new Date().getFullYear()} ${config.schoolName || 'School Website'}. All Rights Reserved.`}
           </div>
           <div>
             Built with React, Vite & Vanilla CSS Design System
+          </div>
+        </div>
+
+        {/* Developer Attribution */}
+        <div
+          style={{
+            marginTop: '1.25rem',
+            paddingTop: '1rem',
+            borderTop: '1px solid rgba(255, 255, 255, 0.04)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.825rem',
+            color: '#94a3b8',
+            letterSpacing: '0.01em'
+          }}
+        >
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <span>Designed &amp; Developed by</span>
+            <a
+              href="https://jralex07.github.io/Portfolio/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="developer-credit-link"
+              data-helper-title="Developer Portfolio"
+              data-helper-description="Visit Alex's portfolio website to view web development and design projects."
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                color: 'var(--color-accent-light)',
+                fontWeight: 700,
+                textDecoration: 'none',
+                padding: '0.2rem 0.65rem',
+                borderRadius: 'var(--radius-full)',
+                background: 'rgba(244, 160, 36, 0.1)',
+                border: '1px solid rgba(244, 160, 36, 0.28)',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+              }}
+            >
+              ALEX
+            </a>
+          </span>
+
+          {/* Alex Ownership Copyright Line */}
+          <div
+            style={{
+              fontSize: '0.78rem',
+              color: '#64748b',
+              letterSpacing: '0.02em',
+              marginTop: '0.25rem',
+              textAlign: 'center'
+            }}
+          >
+            © {new Date().getFullYear()} All rights is owned by ALEX
           </div>
         </div>
       </div>

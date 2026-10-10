@@ -135,7 +135,7 @@ export const NotFoundPage = () => {
               to="/"
               className="btn btn-primary"
               data-helper-title="Return to Home"
-              data-helper-description="Navigate back to Mount Summer Academy homepage."
+              data-helper-description="Navigate back to school website homepage."
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.75rem' }}
             >
               <Home size={18} /> Return to Homepage

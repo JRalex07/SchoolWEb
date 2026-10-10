@@ -6,12 +6,15 @@ import React, { useState, useEffect } from 'react';
  * Built with layered SVG facial components, expressive eyebrow/eye/mouth variants,
  * collegiate mortarboard with golden tassel, and claymorphic 3D depth.
  */
-export const MascotCharacter = ({ state = 'idle', onClick }) => {
-  // Natural blinking timer for idle/relaxed states
+export const MascotCharacter = ({ state = 'idle', onClick, size = 84, style = {} }) => {
+  // Blinking timer for idle/relaxed states (disabled if user prefers reduced motion)
   const [isBlinking, setIsBlinking] = useState(false);
 
   useEffect(() => {
-    if (state !== 'idle' && state !== 'greeting') return;
+    if (state !== 'idle' && state !== 'greeting' && state !== 'reassuring') return;
+    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
     const blinkInterval = setInterval(() => {
       setIsBlinking(true);
       setTimeout(() => setIsBlinking(false), 180);
@@ -28,6 +31,14 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
       case 'hover':
       case 'explaining':
         return { x: 2, y: 0.5 }; // Looking towards element
+      case 'curious':
+        return { x: 1.8, y: -1.2 }; // Looking up-right inquisitively
+      case 'attentive':
+        return { x: 0, y: 1.2 }; // Attentive downward-forward focus
+      case 'reassuring':
+        return { x: 0, y: 0.5 }; // Calm centered comforting gaze
+      case 'confused':
+        return { x: -1.4, y: -0.6 }; // Puzzled slight offset
       case 'warning':
         return { x: 0, y: 1 }; // Focused forward
       default:
@@ -37,28 +48,39 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
 
   const pupil = getPupilOffset();
 
+  const isSmall = typeof size === 'number' && size <= 44;
+
   return (
-    <div 
+    <button
+      type="button"
       className={`mascot-character-art state-${state}`}
       onClick={onClick}
       style={{
-        width: '84px',
-        height: '84px',
+        width: typeof size === 'number' ? `${size}px` : size,
+        height: typeof size === 'number' ? `${size}px` : size,
         cursor: 'pointer',
         position: 'relative',
-        filter: 'drop-shadow(0 12px 22px rgba(15, 30, 54, 0.22))',
+        filter: isSmall ? 'drop-shadow(0 2px 4px rgba(15, 30, 54, 0.16))' : 'drop-shadow(0 12px 22px rgba(15, 30, 54, 0.22))',
         transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-        userSelect: 'none'
+        userSelect: 'none',
+        background: 'transparent',
+        border: 'none',
+        padding: 0,
+        borderRadius: '50%',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+        ...style
       }}
-      title="Barnaby - Your Campus Companion (Click to chat or minimize)"
-      role="img"
+      title="Barnaby - Your Campus Companion (Click to open or dismiss help)"
       aria-label={`Campus companion Barnaby in ${state} expression state`}
     >
-      <svg 
-        viewBox="0 0 100 100" 
-        width="100%" 
-        height="100%" 
-        fill="none" 
+      <svg
+        viewBox="0 0 100 100"
+        width="100%"
+        height="100%"
+        fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
@@ -85,7 +107,7 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
           </radialGradient>
 
           {/* Academic Mortarboard Gradient */}
-          <linearGradient id="barnabyCap" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="barnabyCapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#1e3258" />
             <stop offset="60%" stopColor="#0f1e36" />
             <stop offset="100%" stopColor="#070e1b" />
@@ -105,14 +127,14 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
         </defs>
 
         {/* 1. Feathered Ear Tufts (Perked up when curious/greeting) */}
-        <path 
-          d="M26 36 C 18 24, 22 18, 30 27 Z" 
-          fill="#d08622" 
+        <path
+          d="M26 36 C 18 24, 22 18, 30 27 Z"
+          fill="#d08622"
           className="mascot-tuft-left"
         />
-        <path 
-          d="M74 36 C 82 24, 78 18, 70 27 Z" 
-          fill="#d08622" 
+        <path
+          d="M74 36 C 82 24, 78 18, 70 27 Z"
+          fill="#d08622"
           className="mascot-tuft-right"
         />
 
@@ -152,6 +174,18 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
             <path d="M22 57 Q 14 65 19 74 Q 28 72 27 61 Z" fill="#d08622" />
             <path d="M78 58 Q 72 68 62 64 Q 68 54 75 54 Z" fill="#d08622" filter="url(#softShadow)" />
           </>
+        ) : state === 'curious' ? (
+          /* Wing perked inquisitively outward */
+          <>
+            <path d="M22 56 Q 14 64 19 74 Q 28 72 27 61 Z" fill="#d08622" />
+            <path d="M77 56 Q 90 48 87 40 Q 77 45 74 55 Z" fill="#d08622" filter="url(#softShadow)" />
+          </>
+        ) : state === 'confused' ? (
+          /* Wing raised toward cap in puzzlement */
+          <>
+            <path d="M22 56 Q 14 64 19 74 Q 28 72 27 61 Z" fill="#d08622" />
+            <path d="M78 56 Q 76 43 67 39 Q 70 48 74 58 Z" fill="#d08622" filter="url(#softShadow)" />
+          </>
         ) : state === 'success' ? (
           /* Both Wings Raised in Celebration! */
           <>
@@ -159,7 +193,7 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
             <path d="M78 56 Q 90 44 84 34 Q 74 42 73 52 Z" fill="#d08622" className="mascot-anim-cheer-right" filter="url(#softShadow)" />
           </>
         ) : (
-          /* Rested Friendly Wings */
+          /* Rested Friendly Wings (idle, attentive, reassuring) */
           <>
             <path d="M22 56 Q 14 64 19 74 Q 28 72 27 61 Z" fill="#d08622" />
             <path d="M78 56 Q 86 64 81 74 Q 72 72 73 61 Z" fill="#d08622" />
@@ -184,11 +218,23 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
             <path d="M33 39 Q 40 37 46 41" stroke="#713f12" strokeWidth="2.5" strokeLinecap="round" fill="none" />
             <path d="M67 36 Q 60 38 54 39" stroke="#713f12" strokeWidth="2.5" strokeLinecap="round" fill="none" />
           </>
-        ) : state === 'hover' ? (
+        ) : state === 'hover' || state === 'curious' ? (
           /* One raised inquisitive eyebrow */
           <>
-            <path d="M33 36 Q 40 32 46 37" stroke="#713f12" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+            <path d="M33 34 Q 40 30 46 36" stroke="#713f12" strokeWidth="2.8" strokeLinecap="round" fill="none" />
             <path d="M67 39 Q 60 37 54 41" stroke="#713f12" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          </>
+        ) : state === 'confused' ? (
+          /* Puzzled asymmetrical eyebrows */
+          <>
+            <path d="M33 42 Q 40 40 46 37" stroke="#713f12" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+            <path d="M67 34 Q 60 32 54 39" stroke="#713f12" strokeWidth="2.8" strokeLinecap="round" fill="none" />
+          </>
+        ) : state === 'reassuring' ? (
+          /* Soft gentle uplifting arches */
+          <>
+            <path d="M33 38 Q 40 34 46 38" stroke="#713f12" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+            <path d="M67 38 Q 60 34 54 38" stroke="#713f12" strokeWidth="2.4" strokeLinecap="round" fill="none" />
           </>
         ) : (
           /* Gentle natural friendly eyebrows */
@@ -250,14 +296,33 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
             <polygon points="50,54 44,60 56,60" fill="#eab308" stroke="#a16207" strokeWidth="1" />
             <circle cx="50" cy="58" r="2" fill="#78350f" />
           </g>
+        ) : state === 'curious' ? (
+          /* Perked curious beak */
+          <g transform="translate(0, 0)">
+            <polygon points="50,53 44,60 56,59" fill="#eab308" stroke="#a16207" strokeWidth="1" />
+            <ellipse cx="50" cy="58.5" rx="3.5" ry="1.5" fill="#fef08a" opacity="0.7" />
+          </g>
+        ) : state === 'confused' ? (
+          /* Puzzled wavy beak */
+          <g transform="translate(0, 0)">
+            <polygon points="50,54 43,60 57,60" fill="#eab308" stroke="#a16207" strokeWidth="1" />
+            <path d="M45 60 Q 48 58 50 60 Q 53 62 55 60" stroke="#78350f" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+          </g>
         ) : state === 'warning' ? (
           /* Alert slightly focused beak */
           <g transform="translate(0, 0)">
             <polygon points="50,54 43,59 57,59" fill="#eab308" stroke="#a16207" strokeWidth="1" />
             <path d="M45 59 Q 50 57 55 59" stroke="#78350f" strokeWidth="1.2" fill="none" />
           </g>
+        ) : state === 'reassuring' ? (
+          /* Gentle comforting smile beak */
+          <g transform="translate(0, 0)">
+            <polygon points="50,54 43,60 57,60" fill="#eab308" stroke="#a16207" strokeWidth="1" />
+            <path d="M45 60 Q 50 63 55 60" stroke="#92400e" strokeWidth="1" fill="none" />
+            <ellipse cx="50" cy="59" rx="4.5" ry="2" fill="#fef08a" opacity="0.8" />
+          </g>
         ) : (
-          /* Friendly cheerful closed beak */
+          /* Friendly cheerful closed beak (idle, attentive) */
           <g transform="translate(0, 0)">
             <polygon points="50,54 43,60 57,60" fill="#eab308" stroke="#a16207" strokeWidth="1" />
             <ellipse cx="50" cy="59" rx="4.5" ry="2" fill="#fef08a" opacity="0.7" />
@@ -265,11 +330,11 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
         )}
 
         {/* 10. Academic Mortarboard Cap */}
-        <g id="barnabyCap" transform="translate(0, -3)">
+        <g className="barnaby-cap" transform="translate(0, -3)">
           {/* Skullcap */}
           <ellipse cx="50" cy="27" rx="15" ry="7.5" fill="#070e1b" />
           {/* Diamond Board */}
-          <polygon points="50,13 76,23 50,31 24,23" fill="url(#barnabyCap)" filter="url(#softShadow)" />
+          <polygon points="50,13 76,23 50,31 24,23" fill="url(#barnabyCapGrad)" filter="url(#softShadow)" />
           {/* Golden Center Button */}
           <circle cx="50" cy="22" r="2.8" fill="url(#barnabyGold)" />
           {/* Golden Tassel String */}
@@ -278,6 +343,6 @@ export const MascotCharacter = ({ state = 'idle', onClick }) => {
           <polygon points="67,36 71,38 66,43 64,41" fill="url(#barnabyGold)" />
         </g>
       </svg>
-    </div>
+    </button>
   );
 };

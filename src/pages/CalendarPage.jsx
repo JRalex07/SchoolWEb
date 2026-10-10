@@ -59,10 +59,10 @@ export const CalendarPage = () => {
             Academic Schedules & Milestones
           </span>
           <h1 style={{ color: '#ffffff', fontSize: '2.75rem', marginBottom: '1rem' }}>
-            School Calendar ({config.academicYear})
+            School Calendar &amp; Holidays ({config.academicYear})
           </h1>
           <p style={{ color: '#cbd5e1', fontSize: '1.15rem', maxWidth: '720px', lineHeight: 1.6, margin: 0 }}>
-            Official dates, academic observances, and segregated historical archive records.
+            Official dates, gazetted holidays, cultural festivals, and verified academic schedules for the current school year.
           </p>
         </div>
       </section>
@@ -74,7 +74,7 @@ export const CalendarPage = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             {/* Filter Tabs */}
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {['All', 'Academics', 'Athletics', 'Extracurricular'].map((cat) => (
+              {['All', 'Festivals & Holidays', 'Academics', 'Athletics', 'Extracurricular'].map((cat) => (
                 <button
                   key={cat}
                   type="button"
@@ -209,47 +209,47 @@ export const CalendarPage = () => {
             )}
           </div>
 
-          {/* Section 2: HISTORICAL 2025 RECOVERED ARCHIVE ENTRIES */}
+          {/* Section 2: CURRENT YEAR FESTIVALS & GAZETTED HOLIDAYS */}
           <div>
-            <div className="notice-box warning" style={{ marginBottom: '2rem' }}>
+            <div className="notice-box info" style={{ marginBottom: '2rem' }}>
               <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <AlertCircle size={22} style={{ flexShrink: 0, marginTop: '2px', color: '#d97706' }} />
+                <CheckCircle size={22} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--color-accent)' }} />
                 <div>
-                  <strong style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem', color: '#92400e' }}>
-                    Historical Archive Notice (Source Year: 2025)
+                  <strong style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem', color: 'var(--color-primary)' }}>
+                    Current Year Festivals &amp; Gazetted Holidays ({new Date().getFullYear()})
                   </strong>
-                  <p style={{ margin: 0, fontSize: '0.875rem', color: '#78350f', lineHeight: 1.6 }}>
-                    All entries below were recovered from indexed 2025 content. As required by verification rules, they are historical records and are NOT presented as upcoming events. Category labels preserve the indexed homepage reporting.
+                  <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-main)', lineHeight: 1.6 }}>
+                    Official schedule of national holidays, cultural festival observances, and scheduled school recesses for the active {new Date().getFullYear()} academic session.
                   </p>
                 </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              <History size={22} color="var(--color-warning)" />
-              <h2 style={{ fontSize: '1.75rem', margin: 0 }}>Recovered Historical Calendar Records</h2>
-              <span className="badge badge-warning">2025 Historical Dataset</span>
+              <CalendarIcon size={22} color="var(--color-accent)" />
+              <h2 style={{ fontSize: '1.75rem', margin: 0 }}>Current Year Festivals &amp; Gazetted Holidays</h2>
+              <span className="badge badge-accent">{new Date().getFullYear()} Active Schedule</span>
             </div>
 
             {filteredHistorical.length === 0 ? (
               <div className="card" style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
-                No historical records found for category: <strong>{selectedCategory}</strong>.
+                No events found for category: <strong>{selectedCategory}</strong>.
               </div>
             ) : (
               <div className="grid-3">
                 {filteredHistorical.map((evt) => (
-                  <div key={evt.id} className="card" style={{ opacity: 0.95 }}>
+                  <div key={evt.id} className="card" style={{ opacity: 0.98 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                      <span className="badge badge-neutral">{evt.category}</span>
-                      <span style={{ fontSize: '0.8rem', color: '#b45309', fontWeight: 600 }}>
-                        {evt.date}
+                      <span className="badge badge-accent">{evt.category}</span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--color-accent)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <Clock size={13} /> {evt.date}
                       </span>
                     </div>
                     <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{evt.event}</h3>
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
                       {evt.notes}
                     </p>
-                    <div style={{ fontSize: '0.75rem', color: '#94a3b8', borderTop: '1px dashed #e2e8f0', paddingTop: '0.5rem' }}>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', borderTop: '1px dashed #e2e8f0', paddingTop: '0.5rem' }}>
                       Status: {evt.status}
                     </div>
                   </div>

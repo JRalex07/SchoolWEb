@@ -1,32 +1,46 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useMascot } from '../../context/MascotContext';
 import { MascotCharacter } from './MascotCharacter';
 import { MascotSpeechBubble } from './MascotSpeechBubble';
 import { getStopForSection } from '../../data/mascotMovementPaths';
 import { calculateSafeAssistantLayout, MASCOT_DIMENSIONS } from '../../utils/mascotPositionCalculator';
-import { ChevronUp, X, Sparkles } from 'lucide-react';
+import { ChevronUp, X, Sparkles, MessageCircle } from 'lucide-react';
 
 export const MascotAssistant = () => {
+  const location = useLocation();
   const {
     mascotState,
     setMascotState,
     isMinimized,
     isDismissed,
+    deviceMode,
     activeMessage,
     activeSection,
+    hasUserClosedBubble,
+    isBubbleVisible,
     notifySectionChange,
+    setHoverHelper,
+    clearHoverHelper,
+    setHoveringBubble,
+    requestHelp,
+    dismissBubble,
     minimizeMascot,
     maximizeMascot,
     dismissMascot,
     restoreMascot
   } = useMascot();
 
-  const [speechBubbleOpen, setSpeechBubbleOpen] = useState(true);
-  const [bubbleDimensions, setBubbleDimensions] = useState({ width: 320, height: 160 });
+  const [speechBubbleOpen, setSpeechBubbleOpen] = useState(isBubbleVisible);
+  const [bubbleDimensions, setBubbleDimensions] = useState({ width: 300, height: 120 });
+  const [isVirtualKeyboardOpen, setIsVirtualKeyboardOpen] = useState(false);
+  const [mobileUserRequested, setMobileUserRequested] = useState(false);
   const [windowDimensions, setWindowDimensions] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 1200,
-    height: typeof window !== 'undefined' ? window.innerHeight : 800
+    width: typeof document !== 'undefined' ? document.documentElement.clientWidth : (typeof window !== 'undefined' ? window.innerWidth : 1200),
+    height: typeof window !== 'undefined' ? window.innerHeight : 800,
+    offsetTop: 0,
+    offsetLeft: 0
   });
 
   const bubbleRef = useRef(null);
@@ -35,37 +49,46 @@ export const MascotAssistant = () => {
   const isInteractingRef = useRef(false);
   const shouldReduceMotion = useReducedMotion();
 
-  // Track active stop based on currently confirmed active section
-  const [currentStopId, setCurrentStopId] = useState('hero-stop');
-
   // Lock movement while user is actively filling forms or reading warning/thinking states
   useEffect(() => {
     isInteractingRef.current = mascotState === 'warning' || mascotState === 'thinking';
   }, [mascotState]);
 
-  // Re-open speech bubble whenever a new message arrives
+  // Synchronize speech bubble open state with central context isBubbleVisible
   useEffect(() => {
-    if (activeMessage && activeMessage.text) {
-      setSpeechBubbleOpen(true);
-    }
-  }, [activeMessage]);
+    setSpeechBubbleOpen(isBubbleVisible);
+  }, [isBubbleVisible]);
 
-  // 1. Efficient Section-awareness with Hysteresis & Dwell Stability
-  // The mascot ONLY moves when a new section has consistently settled into view
+  // 1. Keyboard Accessibility: Close speech bubble on Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && speechBubbleOpen) {
+        dismissBubble();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [speechBubbleOpen, dismissBubble]);
+
+  // 2. Efficient Section-awareness with Hysteresis & Dwell Stability (supports tall sections)
+  // Re-observe dynamically whenever the route changes
   useEffect(() => {
     const handleIntersection = (entries) => {
-      // Find the most prominent intersecting section
       let bestEntry = null;
       let maxRatio = 0;
+      const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
 
       for (const entry of entries) {
-        if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
-          maxRatio = entry.intersectionRatio;
+        const rect = entry.boundingClientRect;
+        // Reliably catch tall sections spanning across the vertical center of the screen
+        const spansCenter = rect.top <= (vh * 0.45) && rect.bottom >= (vh * 0.45);
+        if (entry.isIntersecting && (entry.intersectionRatio > maxRatio || spansCenter)) {
+          maxRatio = spansCenter ? 1.0 : entry.intersectionRatio;
           bestEntry = entry;
         }
       }
 
-      if (bestEntry && maxRatio >= 0.3) {
+      if (bestEntry && maxRatio >= 0.15) {
         const sectionId = bestEntry.target.getAttribute('data-section-id') || bestEntry.target.id;
         if (!sectionId || sectionId === pendingSectionRef.current) return;
 
@@ -76,8 +99,6 @@ export const MascotAssistant = () => {
         sectionDwellTimer.current = setTimeout(() => {
           if (!isInteractingRef.current) {
             notifySectionChange(sectionId);
-            const resolvedStop = getStopForSection(sectionId);
-            setCurrentStopId(resolvedStop.id);
           }
         }, 220);
       }
@@ -85,7 +106,7 @@ export const MascotAssistant = () => {
 
     const observer = new IntersectionObserver(handleIntersection, {
       root: null,
-      threshold: [0.3, 0.5, 0.7]
+      threshold: [0.15, 0.35, 0.6]
     });
 
     const targetSections = document.querySelectorAll('[data-section-id], section[id], footer[id="footer"]');
@@ -96,27 +117,102 @@ export const MascotAssistant = () => {
       observer.disconnect();
       if (sectionDwellTimer.current) clearTimeout(sectionDwellTimer.current);
     };
-  }, [notifySectionChange]);
+  }, [notifySectionChange, location.pathname]);
 
-  // Synchronize stop when activeSection changes externally (e.g. route changes)
+  // 3. Desktop Hover & Keyboard Focus Helpers (Intentional 200ms delay, no cursor tracking)
   useEffect(() => {
-    if (activeSection) {
-      const resolved = getStopForSection(activeSection);
-      setCurrentStopId(resolved.id);
-    }
-  }, [activeSection]);
+    if (deviceMode !== 'desktop') return;
 
-  // 2. Measure bubble DOM dimensions to ensure millimeter-accurate footprint calculation
+    let hoverDelayTimer = null;
+
+    const handleMouseOver = (e) => {
+      const target = e.target.closest('[data-helper-title], [data-helper-description]');
+      if (!target) return;
+      if (e.relatedTarget && target.contains(e.relatedTarget)) return;
+
+      if (hoverDelayTimer) clearTimeout(hoverDelayTimer);
+      hoverDelayTimer = setTimeout(() => {
+        const title = target.getAttribute('data-helper-title') || target.innerText?.slice(0, 25);
+        const description = target.getAttribute('data-helper-description') || 'Click to interact with this school resource.';
+        const example = target.getAttribute('data-helper-example') || null;
+
+        setHoverHelper({ title, description, example });
+      }, 200);
+    };
+
+    const handleMouseOut = (e) => {
+      const target = e.target.closest('[data-helper-title], [data-helper-description]');
+      if (!target) return;
+      if (e.relatedTarget && target.contains(e.relatedTarget)) return;
+
+      if (hoverDelayTimer) clearTimeout(hoverDelayTimer);
+      clearHoverHelper();
+    };
+
+    const handleFocusIn = (e) => {
+      const target = e.target.closest('[data-helper-title], [data-helper-description]');
+      if (!target) return;
+      const title = target.getAttribute('data-helper-title') || target.innerText?.slice(0, 25);
+      const description = target.getAttribute('data-helper-description') || 'Select to interact with this school resource.';
+      const example = target.getAttribute('data-helper-example') || null;
+
+      setHoverHelper({ title, description, example });
+    };
+
+    const handleFocusOut = (e) => {
+      const target = e.target.closest('[data-helper-title], [data-helper-description]');
+      if (!target) return;
+      clearHoverHelper();
+    };
+
+    document.addEventListener('mouseover', handleMouseOver);
+    document.addEventListener('mouseout', handleMouseOut);
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('focusout', handleFocusOut);
+
+    return () => {
+      document.removeEventListener('mouseover', handleMouseOver);
+      document.removeEventListener('mouseout', handleMouseOut);
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('focusout', handleFocusOut);
+      if (hoverDelayTimer) clearTimeout(hoverDelayTimer);
+    };
+  }, [deviceMode, setHoverHelper, clearHoverHelper]);
+
+  // Touch tap helper listener for touch-first environments (tablets & mobile)
+  useEffect(() => {
+    if (deviceMode === 'desktop') return;
+
+    const handleTouchTap = (e) => {
+      const target = e.target.closest('[data-helper-title], [data-helper-description]');
+      if (!target) return;
+      const title = target.getAttribute('data-helper-title') || target.innerText?.slice(0, 25);
+      const description = target.getAttribute('data-helper-description') || 'Select to interact with this school resource.';
+      const example = target.getAttribute('data-helper-example') || null;
+
+      setHoverHelper({ title, description, example });
+    };
+
+    document.addEventListener('click', handleTouchTap, { passive: true });
+    return () => {
+      document.removeEventListener('click', handleTouchTap);
+    };
+  }, [deviceMode, setHoverHelper]);
+
+  // 4. Measure bubble DOM dimensions unscaled to prevent scale-transition oscillation
   useEffect(() => {
     if (!bubbleRef.current) return;
 
     const measureBubble = () => {
       if (bubbleRef.current) {
-        const rect = bubbleRef.current.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
+        // Use offsetWidth and offsetHeight to measure true layout dimensions unscaled by transform
+        const w = bubbleRef.current.offsetWidth || Math.round(bubbleRef.current.getBoundingClientRect().width);
+        const h = bubbleRef.current.offsetHeight || Math.round(bubbleRef.current.getBoundingClientRect().height);
+        if (w > 0 && h > 0) {
+          const clampedW = Math.min(310, w);
           setBubbleDimensions(prev => {
-            if (Math.abs(prev.width - rect.width) > 4 || Math.abs(prev.height - rect.height) > 4) {
-              return { width: Math.round(rect.width), height: Math.round(rect.height) };
+            if (Math.abs(prev.width - clampedW) > 4 || Math.abs(prev.height - h) > 4) {
+              return { width: clampedW, height: h };
             }
             return prev;
           });
@@ -126,7 +222,6 @@ export const MascotAssistant = () => {
 
     measureBubble();
 
-    // ResizeObserver for dynamic message content expansions
     let ro = null;
     if (typeof ResizeObserver !== 'undefined') {
       ro = new ResizeObserver(() => {
@@ -140,44 +235,60 @@ export const MascotAssistant = () => {
     };
   }, [activeMessage, speechBubbleOpen]);
 
-  // 3. Viewport Resize & Orientation Change Listener
+  // 5. Visual Viewport & Client Width Listener (excludes scrollbar to eliminate clipping)
   useEffect(() => {
     let resizeTimer = null;
-    const handleResize = () => {
+    const updateDimensions = () => {
       if (resizeTimer) clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        setWindowDimensions({
-          width: window.innerWidth,
-          height: window.innerHeight
-        });
-      }, 70);
+        const vv = window.visualViewport;
+        const docClientW = document.documentElement ? document.documentElement.clientWidth : window.innerWidth;
+        const width = vv ? Math.round(vv.width) : docClientW;
+        const height = vv ? Math.round(vv.height) : window.innerHeight;
+        const offsetTop = vv ? Math.round(vv.offsetTop) : 0;
+        const offsetLeft = vv ? Math.round(vv.offsetLeft) : 0;
+        const isKeyboard = vv && typeof window !== 'undefined' && window.innerHeight > 0
+          ? (vv.height < window.innerHeight * 0.72)
+          : false;
+
+        setIsVirtualKeyboardOpen(isKeyboard);
+        setWindowDimensions({ width, height, offsetTop, offsetLeft });
+      }, 60);
     };
 
-    window.addEventListener('resize', handleResize, { passive: true });
-    window.addEventListener('orientationchange', handleResize, { passive: true });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateDimensions, { passive: true });
+      window.visualViewport.addEventListener('scroll', updateDimensions, { passive: true });
+    }
+    window.addEventListener('resize', updateDimensions, { passive: true });
+    window.addEventListener('orientationchange', updateDimensions, { passive: true });
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateDimensions);
+        window.visualViewport.removeEventListener('scroll', updateDimensions);
+      }
+      window.removeEventListener('resize', updateDimensions);
+      window.removeEventListener('orientationchange', updateDimensions);
       if (resizeTimer) clearTimeout(resizeTimer);
     };
   }, []);
 
-  // 4. Calculate Master Viewport Layout Footprint
-  // Resolves non-overflowing fixed coordinates for both mascot and speech bubble
+  // 6. Calculate Master Viewport Layout Footprint (accounting for isMinimized)
   const layout = useMemo(() => {
-    const stop = getStopForSection(activeSection) || getStopForSection(currentStopId);
+    const stop = getStopForSection(activeSection);
     return calculateSafeAssistantLayout({
       stop,
       viewportWidth: windowDimensions.width,
       viewportHeight: windowDimensions.height,
-      isBubbleOpen: speechBubbleOpen && !!(activeMessage && activeMessage.text),
+      deviceMode,
+      isBubbleOpen: isBubbleVisible && !!(activeMessage && activeMessage.text),
+      isMinimized,
       bubbleDimensions
     });
-  }, [activeSection, currentStopId, windowDimensions, speechBubbleOpen, activeMessage, bubbleDimensions]);
+  }, [activeSection, windowDimensions, deviceMode, isBubbleVisible, activeMessage, isMinimized, bubbleDimensions]);
 
-  // Spring physics transition configuration for smooth path traversal
-  // Smooth, relaxed spring physics transition for gentle, elegant gliding (not rushed)
+  // Gentle, relaxed spring physics transition for floating glide (not too fast)
   const springTransition = shouldReduceMotion
     ? { duration: 0 }
     : {
@@ -198,8 +309,8 @@ export const MascotAssistant = () => {
           initial={{ opacity: 0, scale: 0.8, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 15 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
+          whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
           style={{
             position: 'fixed',
             bottom: '24px',
@@ -226,7 +337,7 @@ export const MascotAssistant = () => {
     );
   }
 
-  // If minimized, render a compact pill gliding with smooth spring physics to the current safe coordinates
+  // If minimized, render a compact pill gliding with smooth spring physics
   if (isMinimized) {
     return (
       <motion.div
@@ -235,8 +346,8 @@ export const MascotAssistant = () => {
         initial={false}
         animate={{ x: layout.mascot.x, y: layout.mascot.y }}
         transition={springTransition}
-        whileHover={{ scale: 1.06 }}
-        whileTap={{ scale: 0.96 }}
+        whileHover={shouldReduceMotion ? undefined : { scale: 1.06 }}
+        whileTap={shouldReduceMotion ? undefined : { scale: 0.96 }}
         style={{
           position: 'fixed',
           top: 0,
@@ -258,7 +369,7 @@ export const MascotAssistant = () => {
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') maximizeMascot(); }}
       >
         <div style={{ width: '28px', height: '28px' }}>
-          <MascotCharacter state="idle" />
+          <MascotCharacter state="idle" size={28} />
         </div>
         <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-primary)' }}>
           Barnaby
@@ -268,6 +379,135 @@ export const MascotAssistant = () => {
     );
   }
 
+  // Mobile Presentation Mode: Sleek, non-obstructive action button with visualViewport accommodation
+  if (layout.isMobile) {
+    // If mobile virtual keyboard is active, hide floating mascot to guarantee zero input obstruction
+    if (isVirtualKeyboardOpen) {
+      return null;
+    }
+
+    // On mobile hero section, auto-suppress initial automatic popover speech bubble so it never obstructs the hero CTA buttons
+    const isMobileHeroSuppressed = activeSection === 'hero' && !mobileUserRequested;
+    const shouldShowMobileBubble = speechBubbleOpen && !isMobileHeroSuppressed && activeMessage && activeMessage.text && layout.bubble;
+
+    return (
+      <>
+        {/* Mobile Backdrop for Speech Bubble Dismissal */}
+        {shouldShowMobileBubble && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 993,
+              background: 'rgba(15, 12, 40, 0.2)',
+              backdropFilter: 'blur(2px)',
+              pointerEvents: 'auto'
+            }}
+            onClick={dismissBubble}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Mobile Speech Bubble Overlay (Anchored cleanly above trigger) */}
+        <AnimatePresence>
+          {shouldShowMobileBubble && (
+            <motion.div
+              key="mobile-mascot-speech-bubble"
+              ref={bubbleRef}
+              initial={{ opacity: 0, scale: 0.94, y: 12 }}
+              animate={{
+                x: layout.bubble.x,
+                y: layout.bubble.y,
+                width: layout.bubble.width,
+                opacity: 1,
+                scale: 1
+              }}
+              exit={{ opacity: 0, scale: 0.94, y: 12 }}
+              transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.25, ease: 'easeOut' }}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                zIndex: 995,
+                pointerEvents: 'auto',
+                maxWidth: `${layout.maxBubbleWidth}px`
+              }}
+            >
+              <MascotSpeechBubble
+                message={activeMessage}
+                state={mascotState}
+                placement={layout.placement}
+                onClose={dismissBubble}
+                onMinimize={minimizeMascot}
+                onApplySuggestion={activeMessage.onApplySuggestion}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Compact Help Trigger (Stationed at bottom-right, out of the way of page content) */}
+        <div
+          style={{
+            position: 'fixed',
+            right: 'max(14px, env(safe-area-inset-right, 14px))',
+            bottom: 'max(14px, env(safe-area-inset-bottom, 14px))',
+            zIndex: 994,
+            pointerEvents: 'auto'
+          }}
+        >
+          <motion.button
+            type="button"
+            onClick={() => {
+              if (speechBubbleOpen) {
+                dismissBubble();
+              } else {
+                setMobileUserRequested(true);
+                requestHelp();
+              }
+            }}
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.94 }}
+            style={{
+              background: 'linear-gradient(168deg, #FFFEFC 0%, #FAF6EE 100%)',
+              border: '1.5px solid rgba(255, 255, 255, 0.95)',
+              borderRadius: 'var(--radius-full)',
+              height: '40px',
+              padding: '0 0.85rem 0 0.45rem',
+              boxShadow: 'var(--clay-card)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              cursor: 'pointer',
+              color: 'var(--color-primary)'
+            }}
+            aria-label="Toggle Assistant Barnaby Help"
+            title="Ask Barnaby for guidance"
+          >
+            <div style={{ width: '28px', height: '28px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <MascotCharacter state={mascotState} size={28} />
+            </div>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-primary)', letterSpacing: '-0.01em' }}>
+              Ask Barnaby
+            </span>
+            {isMobileHeroSuppressed && (
+              <span
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: 'var(--color-accent)',
+                  boxShadow: '0 0 6px var(--color-accent)'
+                }}
+                aria-hidden="true"
+              />
+            )}
+          </motion.button>
+        </div>
+      </>
+    );
+  }
+
+  // Desktop & Tablet Presentation Mode: Viewport-aware Predefined Movement Glider
   return (
     <>
       {/* 1. Speech Bubble Layer - Strictly Clamped, Dynamically Placed */}
@@ -292,6 +532,8 @@ export const MascotAssistant = () => {
               opacity: { duration: 0.25 },
               scale: { duration: 0.25 }
             }}
+            onMouseEnter={() => setHoveringBubble(true)}
+            onMouseLeave={() => setHoveringBubble(false)}
             style={{
               position: 'fixed',
               top: 0,
@@ -304,7 +546,8 @@ export const MascotAssistant = () => {
             <MascotSpeechBubble
               message={activeMessage}
               state={mascotState}
-              onClose={() => setSpeechBubbleOpen(false)}
+              placement={layout.placement}
+              onClose={dismissBubble}
               onMinimize={minimizeMascot}
               onApplySuggestion={activeMessage.onApplySuggestion}
             />
@@ -328,20 +571,24 @@ export const MascotAssistant = () => {
           alignItems: 'center',
           gap: '0.45rem',
           pointerEvents: 'none',
-          width: `${MASCOT_DIMENSIONS.width + 32}px`
+          width: `${MASCOT_DIMENSIONS.desktop.width}px`,
+          willChange: 'transform'
         }}
       >
         <div style={{ pointerEvents: 'auto', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
           <motion.div
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.94 }}
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.08 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.94 }}
             transition={{ type: 'spring', stiffness: 300, damping: 15 }}
           >
             <MascotCharacter
               state={mascotState}
               onClick={() => {
-                setSpeechBubbleOpen(prev => !prev);
-                if (!speechBubbleOpen) setMascotState('greeting');
+                if (speechBubbleOpen) {
+                  dismissBubble();
+                } else {
+                  requestHelp();
+                }
               }}
             />
           </motion.div>
@@ -350,8 +597,8 @@ export const MascotAssistant = () => {
           <motion.button
             type="button"
             onClick={dismissMascot}
-            whileHover={{ scale: 1.15, background: '#fee2e2' }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.15, background: '#fee2e2' }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.9 }}
             style={{
               background: 'rgba(255, 255, 255, 0.95)',
               border: 'none',

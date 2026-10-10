@@ -3,14 +3,18 @@
  * Mathematical positioning engine that calculates the combined safe footprint
  * of the mascot character and speech bubble within the viewport.
  * 
+ * Supports responsive interaction modes (Desktop, Tablet-Touch, Mobile).
  * Guarantees zero off-screen overflow, zero clipping, and automatic side/vertical
- * flipping based on dynamic space availability.
+ * flipping based on dynamic space availability and visual viewport limits.
  */
 
 export const MASCOT_DIMENSIONS = {
-  width: 84,
-  height: 94
+  desktop: { width: 116, height: 94 }, // Character (84px) + gap (7px) + quick dismiss button (25px)
+  minimized: { width: 148, height: 42 }, // Minimized pill footprint (Barnaby + text + chevron)
+  mobile: { width: 44, height: 44 }
 };
+
+export const BUBBLE_MAX_WIDTH = 310; // Compact, friendly speech bubble width (prevents oversized stretching)
 
 export const VIEWPORT_INSETS = {
   padX: 16,
@@ -21,13 +25,16 @@ export const VIEWPORT_INSETS = {
 
 /**
  * Calculates safe, non-overflowing fixed coordinates for both the mascot
- * and the speech bubble based on the current predefined stop and viewport dimensions.
+ * and the speech bubble based on the current predefined stop, viewport dimensions,
+ * and device mode.
  *
  * @param {Object} options
  * @param {Object} options.stop - The current movement stop config
- * @param {number} options.viewportWidth - window.innerWidth
- * @param {number} options.viewportHeight - window.innerHeight
+ * @param {number} options.viewportWidth - window.innerWidth or visualViewport.width
+ * @param {number} options.viewportHeight - window.innerHeight or visualViewport.height
+ * @param {string} options.deviceMode - 'desktop' | 'tablet-touch' | 'mobile'
  * @param {boolean} options.isBubbleOpen - Whether speech bubble is active
+ * @param {boolean} options.isMinimized - Whether mascot is in minimized pill mode
  * @param {Object} options.bubbleDimensions - Measured width and height of bubble
  * @returns {Object} Safe coordinates and placement mode
  */
@@ -35,12 +42,18 @@ export function calculateSafeAssistantLayout({
   stop,
   viewportWidth,
   viewportHeight,
+  deviceMode = 'desktop',
   isBubbleOpen = true,
-  bubbleDimensions = { width: 320, height: 160 }
+  isMinimized = false,
+  bubbleDimensions = { width: 310, height: 130 }
 }) {
   const { padX, padTop, padBottom, gap } = VIEWPORT_INSETS;
-  const mascotW = MASCOT_DIMENSIONS.width;
-  const mascotH = MASCOT_DIMENSIONS.height;
+  const isMobile = deviceMode === 'mobile' || viewportWidth <= 640;
+  const mascotDims = isMobile
+    ? MASCOT_DIMENSIONS.mobile
+    : (isMinimized ? MASCOT_DIMENSIONS.minimized : MASCOT_DIMENSIONS.desktop);
+  const mascotW = mascotDims.width;
+  const mascotH = mascotDims.height;
 
   // Viewport clamping bounds for the mascot
   const minMascotX = padX;
@@ -48,114 +61,113 @@ export function calculateSafeAssistantLayout({
   const minMascotY = padTop;
   const maxMascotY = Math.max(padTop, viewportHeight - mascotH - padBottom);
 
-  // 1. Calculate Base Mascot Position from Predefined Stop
   let mascotX = 0;
-  if (stop.side === 'left') {
-    mascotX = viewportWidth > 768 ? padX + 12 : padX;
-  } else {
-    // Default or right side
+  let mascotY = 0;
+
+  if (isMobile) {
+    // Mobile Mode: Stationed safely at the bottom right corner so it never covers inputs or content
     mascotX = maxMascotX;
+    mascotY = Math.max(padTop, viewportHeight - mascotH - padBottom - 8);
+  } else {
+    // Desktop / Tablet Mode: Follows predefined named movement stops
+    if (stop.side === 'left') {
+      mascotX = viewportWidth > 768 ? padX + 12 : padX;
+    } else {
+      mascotX = maxMascotX;
+    }
+
+    const ratio = typeof stop.verticalRatio === 'number' ? stop.verticalRatio : 0.35;
+    mascotY = Math.round(viewportHeight * ratio);
+    if (stop.minTop) {
+      mascotY = Math.max(stop.minTop, mascotY);
+    }
   }
 
-  // Base vertical positioning according to stop ratio
-  const ratio = typeof stop.verticalRatio === 'number' ? stop.verticalRatio : 0.35;
-  let mascotY = Math.round(viewportHeight * ratio);
-  if (stop.minTop) {
-    mascotY = Math.max(stop.minTop, mascotY);
-  }
-  mascotY = Math.max(minMascotY, Math.min(maxMascotY, mascotY));
-  mascotX = Math.max(minMascotX, Math.min(maxMascotX, mascotX));
+  // Final mascot coordinate clamp
+  mascotX = Math.round(Math.max(minMascotX, Math.min(maxMascotX, mascotX)));
+  mascotY = Math.round(Math.max(minMascotY, Math.min(maxMascotY, mascotY)));
 
   // If bubble is not open, return just the safe mascot position
   if (!isBubbleOpen) {
     return {
-      mascot: { x: Math.round(mascotX), y: Math.round(mascotY) },
+      mascot: { x: mascotX, y: mascotY },
       bubble: null,
       placement: null,
-      maxBubbleWidth: 320
+      maxBubbleWidth: BUBBLE_MAX_WIDTH,
+      isMobile
     };
   }
 
-  // 2. Measure & Constrain Speech Bubble Dimensions
-  // Ensure the bubble never demands more width than the viewport allows
-  const maxAllowedBubbleW = Math.max(220, viewportWidth - (padX * 2));
-  const measuredW = bubbleDimensions.width || 320;
+  // Measure & Constrain Speech Bubble Dimensions to compact, friendly proportion
+  const maxAllowedBubbleW = Math.min(BUBBLE_MAX_WIDTH, Math.max(200, viewportWidth - (padX * 2)));
+  const measuredW = Math.min(BUBBLE_MAX_WIDTH, bubbleDimensions.width || BUBBLE_MAX_WIDTH);
   const safeBubbleW = Math.min(measuredW, maxAllowedBubbleW);
-  const safeBubbleH = bubbleDimensions.height || 150;
+  const safeBubbleH = Math.min(viewportHeight - padTop - padBottom - gap, bubbleDimensions.height || 130);
 
-  // Available space in all 4 cardinal directions relative to the mascot
-  const spaceToLeft = mascotX - padX - gap;
-  const spaceToRight = (viewportWidth - padX) - (mascotX + mascotW + gap);
-  const spaceAbove = mascotY - padTop - gap;
-  const spaceBelow = (viewportHeight - padBottom) - (mascotY + mascotH + gap);
-
-  let placement = 'left'; // 'left' | 'right' | 'above' | 'below'
+  let placement = 'left';
   let bubbleX = 0;
   let bubbleY = 0;
 
-  const isNarrowScreen = viewportWidth <= 640;
-
-  if (isNarrowScreen) {
-    // Narrow screen / Mobile: Use stacked placement (above or below)
-    if (spaceAbove >= safeBubbleH || spaceAbove >= spaceBelow) {
-      placement = 'above';
-      bubbleY = mascotY - safeBubbleH - gap;
-    } else {
-      placement = 'below';
-      bubbleY = mascotY + mascotH + gap;
-    }
-    // Align horizontally with mascot, then clamp strictly
-    bubbleX = stop.side === 'left' ? mascotX : mascotX + mascotW - safeBubbleW;
-  } else if (stop.side === 'right') {
-    // Right-anchored stop: Prefer placing bubble to the LEFT of mascot
-    if (spaceToLeft >= safeBubbleW) {
-      placement = 'left';
-      bubbleX = mascotX - safeBubbleW - gap;
-      bubbleY = mascotY - 10;
-    } else if (spaceAbove >= safeBubbleH) {
-      placement = 'above';
-      bubbleY = mascotY - safeBubbleH - gap;
-      bubbleX = mascotX + mascotW - safeBubbleW;
-    } else {
-      placement = 'below';
-      bubbleY = mascotY + mascotH + gap;
-      bubbleX = mascotX + mascotW - safeBubbleW;
-    }
+  if (isMobile) {
+    // Mobile Mode: Speech bubble sits cleanly above the bottom action bar/trigger
+    placement = 'above';
+    bubbleX = padX;
+    bubbleY = Math.max(padTop, mascotY - safeBubbleH - gap);
   } else {
-    // Left-anchored stop: Prefer placing bubble to the RIGHT of mascot
-    if (spaceToRight >= safeBubbleW) {
-      placement = 'right';
-      bubbleX = mascotX + mascotW + gap;
-      bubbleY = mascotY - 10;
-    } else if (spaceAbove >= safeBubbleH) {
-      placement = 'above';
-      bubbleY = mascotY - safeBubbleH - gap;
-      bubbleX = mascotX;
+    // Available space in cardinal directions relative to mascot
+    const spaceToLeft = mascotX - padX - gap;
+    const spaceToRight = (viewportWidth - padX) - (mascotX + mascotW + gap);
+    const spaceAbove = mascotY - padTop - gap;
+    const spaceBelow = (viewportHeight - padBottom) - (mascotY + mascotH + gap);
+
+    if (stop.side === 'right') {
+      // Right-anchored: Prefer placing bubble to the LEFT of mascot
+      if (spaceToLeft >= safeBubbleW) {
+        placement = 'left';
+        bubbleX = mascotX - safeBubbleW - gap;
+        bubbleY = mascotY - 10;
+      } else if (spaceAbove >= safeBubbleH) {
+        placement = 'above';
+        bubbleY = mascotY - safeBubbleH - gap;
+        bubbleX = mascotX + mascotW - safeBubbleW;
+      } else {
+        placement = 'below';
+        bubbleY = mascotY + mascotH + gap;
+        bubbleX = mascotX + mascotW - safeBubbleW;
+      }
     } else {
-      placement = 'below';
-      bubbleY = mascotY + mascotH + gap;
-      bubbleX = mascotX;
+      // Left-anchored: Prefer placing bubble to the RIGHT of mascot
+      if (spaceToRight >= safeBubbleW) {
+        placement = 'right';
+        bubbleX = mascotX + mascotW + gap;
+        bubbleY = mascotY - 10;
+      } else if (spaceAbove >= safeBubbleH) {
+        placement = 'above';
+        bubbleY = mascotY - safeBubbleH - gap;
+        bubbleX = mascotX;
+      } else {
+        placement = 'below';
+        bubbleY = mascotY + mascotH + gap;
+        bubbleX = mascotX;
+      }
     }
   }
 
-  // 3. Strict Viewport Clamping (Ensures ZERO clipping on all 4 edges)
+  // Strict Viewport Clamping on Speech Bubble (Zero clipping on all edges)
   const minBubbleX = padX;
   const maxBubbleX = Math.max(padX, viewportWidth - safeBubbleW - padX);
   const minBubbleY = padTop;
   const maxBubbleY = Math.max(padTop, viewportHeight - safeBubbleH - padBottom);
 
-  bubbleX = Math.max(minBubbleX, Math.min(maxBubbleX, bubbleX));
-  bubbleY = Math.max(minBubbleY, Math.min(maxBubbleY, bubbleY));
+  bubbleX = Math.round(Math.max(minBubbleX, Math.min(maxBubbleX, bubbleX)));
+  bubbleY = Math.round(Math.max(minBubbleY, Math.min(maxBubbleY, bubbleY)));
 
-  // 4. Vertical Mutual Collision Adjustment
-  // If stacked above pushes bubble into the header, nudge both down
-  if (placement === 'above' && bubbleY <= padTop) {
+  // Mutual Collision Vertical Adjustment
+  if (placement === 'above' && bubbleY <= padTop && !isMobile) {
     const overflowOffset = padTop - bubbleY;
     bubbleY = padTop;
     mascotY = Math.min(maxMascotY, mascotY + overflowOffset);
-  }
-  // If stacked below pushes bubble below screen bottom, nudge both up
-  if (placement === 'below' && bubbleY >= maxBubbleY) {
+  } else if (placement === 'below' && bubbleY >= maxBubbleY && !isMobile) {
     const overflowOffset = bubbleY - maxBubbleY;
     bubbleY = maxBubbleY;
     mascotY = Math.max(minMascotY, mascotY - overflowOffset);
@@ -163,15 +175,17 @@ export function calculateSafeAssistantLayout({
 
   return {
     mascot: {
-      x: Math.round(mascotX),
-      y: Math.round(mascotY)
+      x: mascotX,
+      y: mascotY,
+      side: stop.side
     },
     bubble: {
-      x: Math.round(bubbleX),
-      y: Math.round(bubbleY),
+      x: bubbleX,
+      y: bubbleY,
       width: Math.round(safeBubbleW)
     },
     placement,
-    maxBubbleWidth: Math.round(maxAllowedBubbleW)
+    maxBubbleWidth: Math.round(maxAllowedBubbleW),
+    isMobile
   };
 }

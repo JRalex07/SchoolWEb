@@ -57,7 +57,7 @@ export const AboutPage = () => {
                 <strong style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem', color: '#1e3a8a' }}>
                   Institutional Record Status
                 </strong>
-                <p style={{ margin: 0, fontSize: '0.875rem', color: '#1e293b', lineHeight: 1.6 }}>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-main)', lineHeight: 1.6 }}>
                   In accordance with the content specifications, official founding dates, complete narrative histories, and proprietary staff rosters from the source school have not been fabricated. The institutional identity below displays verified thematic pillars and transparent placeholders for archival records.
                 </p>
               </div>
@@ -85,11 +85,11 @@ export const AboutPage = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.95rem' }}>
                   <div>
                     <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Principal</span>
-                    <div style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{config.principalName}</div>
+                    <div style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{config.principalName || 'Administrative Office'}</div>
                   </div>
                   <div>
                     <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Vice Principal</span>
-                    <div style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{config.vicePrincipalName}</div>
+                    <div style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{config.vicePrincipalName || 'Academic Dean / Coordinator'}</div>
                   </div>
                 </div>
               </div>

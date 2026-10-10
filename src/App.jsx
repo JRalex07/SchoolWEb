@@ -1,10 +1,10 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { SchoolConfigProvider } from './context/SchoolConfigContext';
+import { SchoolConfigProvider } from './context/SchoolConfigProvider';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { NotificationModal } from './components/NotificationModal';
-import { MascotProvider } from './context/MascotContext';
+import { MascotProvider } from './context/MascotProvider';
 import { MascotAssistant } from './components/Mascot/MascotAssistant';
 
 // Code-split pages for performance optimization & instantaneous initial load
@@ -51,8 +51,8 @@ const PageSkeleton = () => (
 export function App() {
   return (
     <SchoolConfigProvider>
-      <MascotProvider>
-        <BrowserRouter>
+      <BrowserRouter>
+        <MascotProvider>
           <ScrollToTop />
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Navbar />
@@ -74,8 +74,8 @@ export function App() {
             <NotificationModal />
             <MascotAssistant />
           </div>
-        </BrowserRouter>
-      </MascotProvider>
+        </MascotProvider>
+      </BrowserRouter>
     </SchoolConfigProvider>
   );
 }
