@@ -45,7 +45,8 @@ export function calculateSafeAssistantLayout({
   deviceMode = 'desktop',
   isBubbleOpen = true,
   isMinimized = false,
-  bubbleDimensions = { width: 310, height: 130 }
+  bubbleDimensions = { width: 310, height: 130 },
+  obstacles = []
 }) {
   const { padX, padTop, padBottom, gap } = VIEWPORT_INSETS;
   const isMobile = deviceMode === 'mobile' || viewportWidth <= 640;
@@ -104,6 +105,31 @@ export function calculateSafeAssistantLayout({
   const safeBubbleW = Math.min(measuredW, maxAllowedBubbleW);
   const safeBubbleH = Math.min(viewportHeight - padTop - padBottom - gap, bubbleDimensions.height || 130);
 
+  // Strict Viewport Clamping bounds for Speech Bubble
+  const minBubbleX = padX;
+  const maxBubbleX = Math.max(padX, viewportWidth - safeBubbleW - padX);
+  const minBubbleY = padTop;
+  const maxBubbleY = Math.max(padTop, viewportHeight - safeBubbleH - padBottom);
+
+  // Collision detection helper against interactive obstacles
+  const checkObstacleCollision = (bx, by, bw, bh) => {
+    if (!obstacles || obstacles.length === 0) return false;
+    const bRight = bx + bw;
+    const bBottom = by + bh;
+    for (const obs of obstacles) {
+      if (!obs) continue;
+      // Buffer of 6px
+      const oLeft = (obs.left ?? 0) - 6;
+      const oRight = (obs.right ?? (obs.left + (obs.width || 0))) + 6;
+      const oTop = (obs.top ?? 0) - 6;
+      const oBottom = (obs.bottom ?? (obs.top + (obs.height || 0))) + 6;
+      if (!(bRight < oLeft || bx > oRight || bBottom < oTop || by > oBottom)) {
+        return obs;
+      }
+    }
+    return null;
+  };
+
   let placement = 'left';
   let bubbleX = 0;
   let bubbleY = 0;
@@ -121,44 +147,85 @@ export function calculateSafeAssistantLayout({
     const spaceBelow = (viewportHeight - padBottom) - (mascotY + mascotH + gap);
 
     if (stop.side === 'right') {
-      // Right-anchored: Prefer placing bubble to the LEFT of mascot
-      if (spaceToLeft >= safeBubbleW) {
-        placement = 'left';
-        bubbleX = mascotX - safeBubbleW - gap;
-        bubbleY = mascotY - 10;
-      } else if (spaceAbove >= safeBubbleH) {
-        placement = 'above';
-        bubbleY = mascotY - safeBubbleH - gap;
-        bubbleX = mascotX + mascotW - safeBubbleW;
-      } else {
-        placement = 'below';
-        bubbleY = mascotY + mascotH + gap;
-        bubbleX = mascotX + mascotW - safeBubbleW;
+      // Right-anchored: Default try placing bubble to the LEFT of mascot
+      let candidateX = mascotX - safeBubbleW - gap;
+      let candidateY = mascotY - 10;
+      let candidatePlacement = 'left';
+
+      // Check if candidate placement collides with any interactive obstacles (e.g. Hero CTAs)
+      const collision = checkObstacleCollision(candidateX, candidateY, safeBubbleW, safeBubbleH);
+      if (collision) {
+        // Try placing above if space permits
+        if (spaceAbove >= safeBubbleH && !checkObstacleCollision(mascotX + mascotW - safeBubbleW, mascotY - safeBubbleH - gap, safeBubbleW, safeBubbleH)) {
+          candidatePlacement = 'above';
+          candidateX = mascotX + mascotW - safeBubbleW;
+          candidateY = mascotY - safeBubbleH - gap;
+        } else if (spaceBelow >= safeBubbleH && !checkObstacleCollision(mascotX + mascotW - safeBubbleW, mascotY + mascotH + gap, safeBubbleW, safeBubbleH)) {
+          candidatePlacement = 'below';
+          candidateX = mascotX + mascotW - safeBubbleW;
+          candidateY = mascotY + mascotH + gap;
+        } else if (collision.top && (collision.top - safeBubbleH - gap) >= minBubbleY) {
+          // Shift vertically above the obstacle
+          candidateY = Math.max(minBubbleY, collision.top - safeBubbleH - gap);
+        } else if (collision.bottom && (collision.bottom + gap) <= maxBubbleY) {
+          // Shift vertically below the obstacle
+          candidateY = Math.min(maxBubbleY, collision.bottom + gap);
+        }
+      } else if (spaceToLeft < safeBubbleW) {
+        if (spaceAbove >= safeBubbleH) {
+          candidatePlacement = 'above';
+          candidateY = mascotY - safeBubbleH - gap;
+          candidateX = mascotX + mascotW - safeBubbleW;
+        } else {
+          candidatePlacement = 'below';
+          candidateY = mascotY + mascotH + gap;
+          candidateX = mascotX + mascotW - safeBubbleW;
+        }
       }
+
+      placement = candidatePlacement;
+      bubbleX = candidateX;
+      bubbleY = candidateY;
     } else {
-      // Left-anchored: Prefer placing bubble to the RIGHT of mascot
-      if (spaceToRight >= safeBubbleW) {
-        placement = 'right';
-        bubbleX = mascotX + mascotW + gap;
-        bubbleY = mascotY - 10;
-      } else if (spaceAbove >= safeBubbleH) {
-        placement = 'above';
-        bubbleY = mascotY - safeBubbleH - gap;
-        bubbleX = mascotX;
-      } else {
-        placement = 'below';
-        bubbleY = mascotY + mascotH + gap;
-        bubbleX = mascotX;
+      // Left-anchored: Default try placing bubble to the RIGHT of mascot
+      let candidateX = mascotX + mascotW + gap;
+      let candidateY = mascotY - 10;
+      let candidatePlacement = 'right';
+
+      const collision = checkObstacleCollision(candidateX, candidateY, safeBubbleW, safeBubbleH);
+      if (collision) {
+        if (spaceAbove >= safeBubbleH && !checkObstacleCollision(mascotX, mascotY - safeBubbleH - gap, safeBubbleW, safeBubbleH)) {
+          candidatePlacement = 'above';
+          candidateX = mascotX;
+          candidateY = mascotY - safeBubbleH - gap;
+        } else if (spaceBelow >= safeBubbleH && !checkObstacleCollision(mascotX, mascotY + mascotH + gap, safeBubbleW, safeBubbleH)) {
+          candidatePlacement = 'below';
+          candidateX = mascotX;
+          candidateY = mascotY + mascotH + gap;
+        } else if (collision.top && (collision.top - safeBubbleH - gap) >= minBubbleY) {
+          candidateY = Math.max(minBubbleY, collision.top - safeBubbleH - gap);
+        } else if (collision.bottom && (collision.bottom + gap) <= maxBubbleY) {
+          candidateY = Math.min(maxBubbleY, collision.bottom + gap);
+        }
+      } else if (spaceToRight < safeBubbleW) {
+        if (spaceAbove >= safeBubbleH) {
+          candidatePlacement = 'above';
+          candidateY = mascotY - safeBubbleH - gap;
+          candidateX = mascotX;
+        } else {
+          candidatePlacement = 'below';
+          candidateY = mascotY + mascotH + gap;
+          candidateX = mascotX;
+        }
       }
+
+      placement = candidatePlacement;
+      bubbleX = candidateX;
+      bubbleY = candidateY;
     }
   }
 
   // Strict Viewport Clamping on Speech Bubble (Zero clipping on all edges)
-  const minBubbleX = padX;
-  const maxBubbleX = Math.max(padX, viewportWidth - safeBubbleW - padX);
-  const minBubbleY = padTop;
-  const maxBubbleY = Math.max(padTop, viewportHeight - safeBubbleH - padBottom);
-
   bubbleX = Math.round(Math.max(minBubbleX, Math.min(maxBubbleX, bubbleX)));
   bubbleY = Math.round(Math.max(minBubbleY, Math.min(maxBubbleY, bubbleY)));
 

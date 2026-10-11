@@ -10,8 +10,8 @@ export const MOVEMENT_STOPS = {
     label: 'Hero Entrance Portal',
     sectionId: 'hero',
     side: 'right', // Stands clear of main heading and call-to-action buttons
-    verticalRatio: 0.22,
-    minTop: 110,
+    verticalRatio: 0.16,
+    minTop: 96,
     description: 'Beside portal introduction, clear of primary admissions CTAs'
   },
   'introduction-stop': {
@@ -72,10 +72,10 @@ export const MOVEMENT_STOPS = {
     id: 'footer-stop',
     label: 'Footer Information Safe Zone',
     sectionId: 'footer',
-    side: 'right', // Parked gracefully above footer links and copyright
+    side: 'left', // Parked gracefully on left flank away from Column 3 contact information
     verticalRatio: 0.72,
     minTop: 130,
-    description: 'Safe lower-right margin above footer links and legal text'
+    description: 'Safe lower-left margin clear of footer contact information'
   },
   'safe-fallback-stop': {
     id: 'safe-fallback-stop',

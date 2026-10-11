@@ -81,13 +81,13 @@ export const Navbar = () => {
       }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.4rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {config.identityMode === 'placeholder' ? (
+            {config.identityMode === 'demo' || config.identityMode === 'placeholder' ? (
               <span className="badge badge-warning" style={{ fontSize: '0.68rem', padding: '0.15rem 0.5rem' }}>
-                <ShieldAlert size={11} /> Prototype Mode
+                <ShieldAlert size={11} /> Prototype Demo
               </span>
             ) : (
               <span className="badge badge-info" style={{ fontSize: '0.68rem', padding: '0.15rem 0.5rem' }}>
-                <Sparkles size={11} /> Historical Mode
+                <Sparkles size={11} /> Custom Profile
               </span>
             )}
             <span style={{ fontSize: '0.74rem' }}>
@@ -174,23 +174,16 @@ export const Navbar = () => {
                 {config.schoolName}
               </div>
               <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
-                {config.identityMode === 'placeholder' ? 'Independent School Prototype' : (config.schoolSubtitle || 'School Portal')}
+                {config.schoolSubtitle || 'Demonstration Campus'}
               </div>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
           <nav
-            style={{ display: 'none' }}
             className="desktop-nav"
             aria-label="Main Navigation"
           >
-            <style>{`
-              @media (min-width: 992px) {
-                .desktop-nav { display: flex !important; align-items: center; gap: 1.35rem; }
-                .mobile-toggle { display: none !important; }
-              }
-            `}</style>
             {navLinks.map((item) => (
               <NavLink
                 key={item.path}
@@ -213,11 +206,6 @@ export const Navbar = () => {
                 })}
               >
                 {item.label}
-                {item.isUnpublished && (
-                  <span style={{ fontSize: '0.65rem', marginLeft: '3px', verticalAlign: 'super', color: '#8F8E9F' }}>
-                    *
-                  </span>
-                )}
               </NavLink>
             ))}
 
@@ -248,7 +236,8 @@ export const Navbar = () => {
               justifyContent: 'center',
               cursor: 'pointer',
               color: 'var(--color-primary)',
-              padding: 0
+              padding: 0,
+              touchAction: 'manipulation'
             }}
             onClick={() => setMobileMenuOpen(prev => !prev)}
             aria-expanded={mobileMenuOpen}
@@ -284,22 +273,21 @@ export const Navbar = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
               onClick={closeMobileMenu}
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'rgba(22, 17, 58, 0.42)',
-                backdropFilter: 'blur(4px)'
+                background: 'rgba(22, 17, 58, 0.52)'
               }}
             />
 
             {/* Slide-Down Clay Navigation Panel */}
             <motion.div
-              initial={{ y: '-100%', opacity: 0.8 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '-100%', opacity: 0.8 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+              initial={{ y: '-100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '-100%' }}
+              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 position: 'relative',
                 background: 'linear-gradient(175deg, #FFFEFC 0%, #F8F4EA 100%)',
@@ -310,7 +298,9 @@ export const Navbar = () => {
                 maxHeight: '92vh',
                 display: 'flex',
                 flexDirection: 'column',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                willChange: 'transform',
+                transform: 'translateZ(0)'
               }}
             >
               {/* Drawer Top Header */}
@@ -413,9 +403,6 @@ export const Navbar = () => {
                   >
                     <span>
                       {item.label}
-                      {item.isUnpublished && (
-                        <span style={{ fontSize: '0.72rem', color: '#8F8E9F', marginLeft: '6px' }}>(Unpublished)</span>
-                      )}
                     </span>
                     <ChevronRight size={17} color={item.path === location.pathname ? 'var(--color-accent)' : '#8F8E9F'} />
                   </NavLink>

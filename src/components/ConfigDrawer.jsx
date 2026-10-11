@@ -11,9 +11,11 @@ import {
   AlertCircle,
   CheckCircle,
   GraduationCap,
-  Globe
+  Globe,
+  Link as LinkIcon
 } from 'lucide-react';
 import { SchoolDefaultLogo } from './SchoolDefaultLogo';
+import { LeadershipPortrait } from './LeadershipPortrait';
 
 export const ConfigDrawer = ({ isOpen, onClose }) => {
   const { config, updateConfigField, resetToDefault } = useSchoolConfig();
@@ -21,9 +23,82 @@ export const ConfigDrawer = ({ isOpen, onClose }) => {
   const [urlInputOpen, setUrlInputOpen] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Lock body scroll & handle Escape key while drawer is open
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   const [faviconError, setFaviconError] = useState('');
   const [faviconUrlInputOpen, setFaviconUrlInputOpen] = useState(false);
   const faviconFileInputRef = useRef(null);
+
+  const [princPhotoError, setPrincPhotoError] = useState('');
+  const [princUrlOpen, setPrincUrlOpen] = useState(false);
+  const princFileInputRef = useRef(null);
+
+  const [vpPhotoError, setVpPhotoError] = useState('');
+  const [vpUrlOpen, setVpUrlOpen] = useState(false);
+  const vpFileInputRef = useRef(null);
+
+  const handlePrincipalPhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setPrincPhotoError('Supported formats: PNG, JPG, WebP.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setPrincPhotoError('Image size exceeds 2 MB.');
+      return;
+    }
+    setPrincPhotoError('');
+    const reader = new FileReader();
+    reader.onload = (event) => updateConfigField('principalPhotoUrl', event.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePrincipalPhoto = () => {
+    setPrincPhotoError('');
+    updateConfigField('principalPhotoUrl', null);
+    if (princFileInputRef.current) princFileInputRef.current.value = '';
+  };
+
+  const handleVicePrincipalPhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setVpPhotoError('Supported formats: PNG, JPG, WebP.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setVpPhotoError('Image size exceeds 2 MB.');
+      return;
+    }
+    setVpPhotoError('');
+    const reader = new FileReader();
+    reader.onload = (event) => updateConfigField('vicePrincipalPhotoUrl', event.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveVicePrincipalPhoto = () => {
+    setVpPhotoError('');
+    updateConfigField('vicePrincipalPhotoUrl', null);
+    if (vpFileInputRef.current) vpFileInputRef.current.value = '';
+  };
 
   const handleFaviconUpload = (e) => {
     const file = e.target.files?.[0];
@@ -106,22 +181,23 @@ export const ConfigDrawer = ({ isOpen, onClose }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
         >
           <motion.div
             className="modal-card"
             style={{
-              maxWidth: '680px',
-              maxHeight: '90vh',
+              maxWidth: 'min(100%, 680px)',
+              maxHeight: 'min(90vh, 850px)',
               overflowY: 'auto',
-              borderRadius: '28px',
-              position: 'relative'
+              borderRadius: 'clamp(20px, 3.5vw, 28px)',
+              position: 'relative',
+              willChange: 'transform, opacity'
             }}
             onClick={(e) => e.stopPropagation()}
-            initial={{ scale: 0.94, opacity: 0, y: 20 }}
+            initial={{ scale: 0.96, opacity: 0, y: 14 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.94, opacity: 0, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            exit={{ scale: 0.96, opacity: 0, y: 14 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Modal Content Wrapper sitting above organic clay texture */}
             <div style={{ position: 'relative', zIndex: 2 }}>
@@ -627,33 +703,172 @@ export const ConfigDrawer = ({ isOpen, onClose }) => {
                   />
                 </div>
 
-                {/* 3. Leadership Names (Optional) */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                      <label className="form-label" style={{ margin: 0 }}>Principal Name</label>
+                {/* 3. Leadership Names & Portraits (Optional) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {/* Principal Section */}
+                  <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <label className="form-label" style={{ margin: 0, fontWeight: 700 }}>Principal Details</label>
                       <span style={{ background: 'rgba(100, 116, 139, 0.12)', color: '#64748b', fontSize: '0.65rem', padding: '0.12rem 0.45rem', borderRadius: '9999px', fontWeight: 600 }}>Optional</span>
                     </div>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={config.principalName}
-                      onChange={(e) => updateConfigField('principalName', e.target.value)}
-                      placeholder="[Principal Name]"
-                    />
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.75rem' }}>
+                      <LeadershipPortrait
+                        role="principal"
+                        photoUrl={config.principalPhotoUrl}
+                        name={config.principalName}
+                        size={52}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={config.principalName}
+                          onChange={(e) => updateConfigField('principalName', e.target.value)}
+                          placeholder="e.g. Dr. Alistair Vance"
+                          style={{ marginBottom: '0.35rem' }}
+                        />
+                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <input
+                            type="file"
+                            ref={princFileInputRef}
+                            onChange={handlePrincipalPhotoUpload}
+                            accept="image/png,image/jpeg,image/webp"
+                            style={{ display: 'none' }}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => princFileInputRef.current?.click()}
+                            style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem' }}
+                          >
+                            <Upload size={12} /> {config.principalPhotoUrl ? 'Replace Photo' : 'Upload Photo'}
+                          </button>
+                          {config.principalPhotoUrl && (
+                            <button
+                              type="button"
+                              className="btn btn-outline btn-sm"
+                              onClick={handleRemovePrincipalPhoto}
+                              style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem', color: '#dc2626' }}
+                            >
+                              <Trash2 size={12} /> Remove
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            onClick={() => setPrincUrlOpen(!princUrlOpen)}
+                            style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem' }}
+                          >
+                            <LinkIcon size={12} /> URL
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {princUrlOpen && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <input
+                          type="url"
+                          className="form-control"
+                          value={config.principalPhotoUrl || ''}
+                          onChange={(e) => updateConfigField('principalPhotoUrl', e.target.value || null)}
+                          placeholder="https://example.com/principal-photo.jpg"
+                          style={{ fontSize: '0.8rem' }}
+                        />
+                      </div>
+                    )}
+                    {princPhotoError && (
+                      <span style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '0.25rem', display: 'block' }}>
+                        {princPhotoError}
+                      </span>
+                    )}
+                    <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginTop: '0.25rem' }}>
+                      Defaults to refined 3D clay human avatar when no photograph is uploaded.
+                    </span>
                   </div>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                      <label className="form-label" style={{ margin: 0 }}>Vice Principal</label>
+
+                  {/* Vice Principal Section */}
+                  <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <label className="form-label" style={{ margin: 0, fontWeight: 700 }}>Vice Principal Details</label>
                       <span style={{ background: 'rgba(100, 116, 139, 0.12)', color: '#64748b', fontSize: '0.65rem', padding: '0.12rem 0.45rem', borderRadius: '9999px', fontWeight: 600 }}>Optional</span>
                     </div>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={config.vicePrincipalName}
-                      onChange={(e) => updateConfigField('vicePrincipalName', e.target.value)}
-                      placeholder="[Vice Principal Name]"
-                    />
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.75rem' }}>
+                      <LeadershipPortrait
+                        role="vicePrincipal"
+                        photoUrl={config.vicePrincipalPhotoUrl}
+                        name={config.vicePrincipalName}
+                        size={52}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={config.vicePrincipalName}
+                          onChange={(e) => updateConfigField('vicePrincipalName', e.target.value)}
+                          placeholder="e.g. Prof. Kenneth Morales"
+                          style={{ marginBottom: '0.35rem' }}
+                        />
+                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <input
+                            type="file"
+                            ref={vpFileInputRef}
+                            onChange={handleVicePrincipalPhotoUpload}
+                            accept="image/png,image/jpeg,image/webp"
+                            style={{ display: 'none' }}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => vpFileInputRef.current?.click()}
+                            style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem' }}
+                          >
+                            <Upload size={12} /> {config.vicePrincipalPhotoUrl ? 'Replace Photo' : 'Upload Photo'}
+                          </button>
+                          {config.vicePrincipalPhotoUrl && (
+                            <button
+                              type="button"
+                              className="btn btn-outline btn-sm"
+                              onClick={handleRemoveVicePrincipalPhoto}
+                              style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem', color: '#dc2626' }}
+                            >
+                              <Trash2 size={12} /> Remove
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            onClick={() => setVpUrlOpen(!vpUrlOpen)}
+                            style={{ fontSize: '0.72rem', padding: '0.2rem 0.55rem' }}
+                          >
+                            <LinkIcon size={12} /> URL
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {vpUrlOpen && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <input
+                          type="url"
+                          className="form-control"
+                          value={config.vicePrincipalPhotoUrl || ''}
+                          onChange={(e) => updateConfigField('vicePrincipalPhotoUrl', e.target.value || null)}
+                          placeholder="https://example.com/vice-principal-photo.jpg"
+                          style={{ fontSize: '0.8rem' }}
+                        />
+                      </div>
+                    )}
+                    {vpPhotoError && (
+                      <span style={{ color: '#dc2626', fontSize: '0.75rem', marginTop: '0.25rem', display: 'block' }}>
+                        {vpPhotoError}
+                      </span>
+                    )}
+                    <span style={{ fontSize: '0.7rem', color: '#64748b', display: 'block', marginTop: '0.25rem' }}>
+                      Defaults to refined 3D clay human avatar when no photograph is uploaded.
+                    </span>
                   </div>
                 </div>
 
@@ -698,7 +913,7 @@ export const ConfigDrawer = ({ isOpen, onClose }) => {
                     className="form-control"
                     value={config.address}
                     onChange={(e) => updateConfigField('address', e.target.value)}
-                    placeholder="[Verified School Address]"
+                    placeholder="e.g. 42 Academic Parkway, Education City"
                   />
                 </div>
 
@@ -714,7 +929,7 @@ export const ConfigDrawer = ({ isOpen, onClose }) => {
                       className="form-control"
                       value={config.phone}
                       onChange={(e) => updateConfigField('phone', e.target.value)}
-                      placeholder="[Verified Contact Number]"
+                      placeholder="e.g. +91 98765 43210"
                     />
                   </div>
                   <div className="form-group" style={{ margin: 0 }}>
@@ -727,7 +942,7 @@ export const ConfigDrawer = ({ isOpen, onClose }) => {
                       className="form-control"
                       value={config.email}
                       onChange={(e) => updateConfigField('email', e.target.value)}
-                      placeholder="[Verified Contact Email]"
+                      placeholder="e.g. admissions@school-prototype.edu"
                     />
                   </div>
                 </div>

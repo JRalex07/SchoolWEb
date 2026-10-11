@@ -44,6 +44,14 @@ export const NotFoundPage = () => {
     };
   }, [location.pathname, navigate, setMascotState, setActiveMessage]);
 
+  const handleGoBack = () => {
+    if (typeof window !== 'undefined' && window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   const quickLinks = [
     { title: 'Academic Programs', desc: 'Pre-K through Grade 12 curriculum', to: '/academics', icon: BookOpen },
     { title: 'School Calendar', desc: 'Upcoming terms, breaks, and sports', to: '/calendar', icon: Calendar },
@@ -143,10 +151,10 @@ export const NotFoundPage = () => {
 
             <button
               type="button"
-              onClick={() => navigate(-1)}
+              onClick={handleGoBack}
               className="btn btn-outline"
               data-helper-title="Previous Page"
-              data-helper-description="Step back to the page you just visited."
+              data-helper-description="Step back to the page you just visited or return to homepage."
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.5rem' }}
             >
               <ArrowLeft size={18} /> Go Back

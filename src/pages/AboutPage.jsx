@@ -1,19 +1,20 @@
 import React from 'react';
 import { useSchoolConfig } from '../context/SchoolConfigContext';
 import { MISSION_THEMES, HIGHLIGHT_THEMES, UNVERIFIED_INVENTORY } from '../data/schoolContent';
-import { 
-  Building, 
-  Info, 
-  ShieldCheck, 
-  AlertTriangle, 
-  BookOpen, 
-  HeartHandshake, 
-  Brain, 
-  Globe, 
-  Palette, 
-  Users, 
+import {
+  Building,
+  Info,
+  ShieldCheck,
+  AlertTriangle,
+  BookOpen,
+  HeartHandshake,
+  Brain,
+  Globe,
+  Palette,
+  Users,
   UserCheck
 } from 'lucide-react';
+import { LeadershipPortrait } from '../components/LeadershipPortrait';
 
 export const AboutPage = () => {
   const { config, openActionModal } = useSchoolConfig();
@@ -50,15 +51,15 @@ export const AboutPage = () => {
       {/* Main Content & Status Alert */}
       <section className="section" data-section-id="about-overview">
         <div className="container">
-          <div className="notice-box info">
+          <div className="notice-box info" style={{ background: 'linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%)', border: '1.5px solid #bfdbfe', borderRadius: '16px', padding: '1.25rem' }}>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <Info size={22} style={{ flexShrink: 0, marginTop: '2px', color: '#2563eb' }} />
               <div>
-                <strong style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem', color: '#1e3a8a' }}>
-                  Institutional Record Status
+                <strong style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem', color: '#1e40af' }}>
+                  Institutional Demonstration Profile
                 </strong>
-                <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-main)', lineHeight: 1.6 }}>
-                  In accordance with the content specifications, official founding dates, complete narrative histories, and proprietary staff rosters from the source school have not been fabricated. The institutional identity below displays verified thematic pillars and transparent placeholders for archival records.
+                <p style={{ margin: 0, fontSize: '0.875rem', color: '#1e3a8a', lineHeight: 1.6 }}>
+                  This prototype models an independent educational institution with an articulated educational philosophy, core mission pillars, and an adaptable leadership structure tailored for multi-campus deployments.
                 </p>
               </div>
             </div>
@@ -77,43 +78,95 @@ export const AboutPage = () => {
                 We equip students to think critically, communicate articulately, and engage as constructive global citizens capable of addressing modern challenges with ethical conviction.
               </p>
 
-              {/* Leadership Roles Card */}
-              <div className="card" style={{ background: '#f8fafc', padding: '1.75rem' }}>
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <UserCheck size={20} color="var(--color-accent)" /> Executive Leadership
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.95rem' }}>
+              {/* Executive Leadership Profile Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: 'clamp(1rem, 2.5vw, 1.25rem)', marginTop: '1.5rem' }}>
+                {/* Principal */}
+                <div
+                  className="card"
+                  style={{
+                    padding: '1.5rem',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.85rem',
+                    borderRadius: '24px',
+                    boxShadow: 'var(--clay-card)'
+                  }}
+                >
+                  <LeadershipPortrait
+                    role="principal"
+                    photoUrl={config.principalPhotoUrl}
+                    name={config.principalName}
+                    size={110}
+                  />
                   <div>
-                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Principal</span>
-                    <div style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{config.principalName || 'Administrative Office'}</div>
+                    <span className="badge badge-info" style={{ fontSize: '0.68rem', marginBottom: '0.35rem', display: 'inline-block' }}>
+                      Principal
+                    </span>
+                    <h4 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-primary)' }}>
+                      {config.principalName}
+                    </h4>
+                    <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                      Head of Institution
+                    </p>
                   </div>
+                </div>
+
+                {/* Vice Principal */}
+                <div
+                  className="card"
+                  style={{
+                    padding: '1.5rem',
+                    textAlign: 'center',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '0.85rem',
+                    borderRadius: '24px',
+                    boxShadow: 'var(--clay-card)'
+                  }}
+                >
+                  <LeadershipPortrait
+                    role="vicePrincipal"
+                    photoUrl={config.vicePrincipalPhotoUrl}
+                    name={config.vicePrincipalName}
+                    size={110}
+                  />
                   <div>
-                    <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Vice Principal</span>
-                    <div style={{ fontWeight: 700, color: 'var(--color-primary)' }}>{config.vicePrincipalName || 'Academic Dean / Coordinator'}</div>
+                    <span className="badge badge-warning" style={{ fontSize: '0.68rem', marginBottom: '0.35rem', display: 'inline-block' }}>
+                      Vice Principal
+                    </span>
+                    <h4 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-primary)' }}>
+                      {config.vicePrincipalName}
+                    </h4>
+                    <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
+                      Academic Dean & Student Life
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* School History Placeholder & Verification Status */}
+            {/* School History & Demonstration Charter */}
             <div>
-              <div className="card" style={{ borderLeft: '4px solid var(--color-warning)', padding: '2rem' }}>
+              <div className="card" style={{ borderLeft: '4px solid var(--color-accent)', padding: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                  <AlertTriangle size={20} color="var(--color-warning)" />
-                  <h3 style={{ fontSize: '1.25rem', margin: 0 }}>School History & Heritage</h3>
+                  <Building size={20} color="var(--color-accent)" />
+                  <h3 style={{ fontSize: '1.25rem', margin: 0 }}>School Heritage & Demonstration Charter</h3>
                 </div>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '1.25rem' }}>
-                  <em>Status: Complete narrative history and founding documentation not recovered in indexed source data.</em>
+                  Established as an exemplar of comprehensive education, {config.schoolName} blends classical academic inquiry with contemporary pedagogical practices. Our foundation is built upon cultivating inquisitive minds and ethical stewards for tomorrow.
                 </p>
-                <div style={{ background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '8px', padding: '1rem', fontSize: '0.875rem', color: '#92400e', marginBottom: '1.5rem' }}>
-                  <strong>[Add verified school history]</strong>: Specific milestones, accreditation credentials, and historical founding archives require official documentation before publication.
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', fontSize: '0.875rem', color: '#475569', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+                  <strong>Institutional Charter:</strong> Fostering a supportive academic community where intellectual curiosity, artistic expression, athletic vigor, and moral integrity converge to develop principled future leaders.
                 </div>
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"
-                  onClick={() => openActionModal("School History Verification", "To preserve historical veracity, founding years and legacy text are not invented. You may configure the school profile via the Identity Configuration panel.", "info")}
+                  onClick={() => openActionModal("Institutional Profile Guidance", "This demonstration profile showcases how history and heritage milestones render. Custom founding records and archive narratives can be updated in real time via the School Identity Settings.", "info")}
                 >
-                  View Verification Guidelines
+                  View Profile Information
                 </button>
               </div>
             </div>

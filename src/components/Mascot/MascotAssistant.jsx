@@ -258,7 +258,6 @@ export const MascotAssistant = () => {
 
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', updateDimensions, { passive: true });
-      window.visualViewport.addEventListener('scroll', updateDimensions, { passive: true });
     }
     window.addEventListener('resize', updateDimensions, { passive: true });
     window.addEventListener('orientationchange', updateDimensions, { passive: true });
@@ -266,7 +265,6 @@ export const MascotAssistant = () => {
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', updateDimensions);
-        window.visualViewport.removeEventListener('scroll', updateDimensions);
       }
       window.removeEventListener('resize', updateDimensions);
       window.removeEventListener('orientationchange', updateDimensions);
@@ -274,7 +272,39 @@ export const MascotAssistant = () => {
     };
   }, []);
 
-  // 6. Calculate Master Viewport Layout Footprint (accounting for isMinimized)
+  // Collect interactive obstacle rectangles for collision avoidance (Primary CTAs, form controls, footer contacts)
+  const obstacles = useMemo(() => {
+    if (typeof document === 'undefined') return [];
+    const elements = document.querySelectorAll(
+      '.btn-primary, .btn-outline-white, a[data-helper-title*="Apply"], .hero-cta, #footer a[href^="tel:"], #footer a[href^="mailto:"], [data-footer-contact]'
+    );
+    const list = [];
+    const vh = windowDimensions.height;
+    const vw = windowDimensions.width;
+    for (const el of elements) {
+      const rect = el.getBoundingClientRect();
+      if (
+        rect.bottom > 70 &&
+        rect.top < vh - 20 &&
+        rect.right > 0 &&
+        rect.left < vw &&
+        rect.width > 0 &&
+        rect.height > 0
+      ) {
+        list.push({
+          left: rect.left,
+          top: rect.top,
+          right: rect.right,
+          bottom: rect.bottom,
+          width: rect.width,
+          height: rect.height
+        });
+      }
+    }
+    return list;
+  }, [activeSection, windowDimensions, location.pathname]);
+
+  // 6. Calculate Master Viewport Layout Footprint (accounting for isMinimized & dynamic obstacles)
   const layout = useMemo(() => {
     const stop = getStopForSection(activeSection);
     return calculateSafeAssistantLayout({
@@ -284,9 +314,10 @@ export const MascotAssistant = () => {
       deviceMode,
       isBubbleOpen: isBubbleVisible && !!(activeMessage && activeMessage.text),
       isMinimized,
-      bubbleDimensions
+      bubbleDimensions,
+      obstacles
     });
-  }, [activeSection, windowDimensions, deviceMode, isBubbleVisible, activeMessage, isMinimized, bubbleDimensions]);
+  }, [activeSection, windowDimensions, deviceMode, isBubbleVisible, activeMessage, isMinimized, bubbleDimensions, obstacles]);
 
   // Gentle, relaxed spring physics transition for floating glide (not too fast)
   const springTransition = shouldReduceMotion

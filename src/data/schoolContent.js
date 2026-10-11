@@ -8,15 +8,17 @@ export const DEFAULT_CONFIG = {
   schoolName: "School Website",
   logoUrl: null, // Optional school logo (data URL or image URL)
   faviconUrl: null, // Optional school favicon (data URL or icon URL)
-  principalName: "[Principal Name]",
-  vicePrincipalName: "[Vice Principal Name]",
-  address: "[Verified School Address]",
-  phone: "[Verified Contact Number]",
-  email: "[Verified Contact Email]",
-  academicYear: "2026-2027",
+  principalName: "Dr. Alistair Vance",
+  principalPhotoUrl: null, // Optional real photo URL; defaults to sculpted 3D clay bust
+  vicePrincipalName: "Prof. Kenneth Morales",
+  vicePrincipalPhotoUrl: null, // Optional real photo URL; defaults to sculpted 3D clay bust
+  address: "SInuara, Darbhanaga,BIhar 846003",
+  phone: "+91 XXXXXXXXXX",
+  email: "[EMAIL_ADDRESS]",
+  academicYear: "2026–2027",
   faithSectionPublished: false, // Leave unpublished by default in prototype
-  identityMode: "placeholder", // 'placeholder' | 'custom'
-  schoolSubtitle: "School Portal",
+  identityMode: "demo", // 'demo' | 'custom'
+  schoolSubtitle: "Demonstration Campus",
   copyrightText: "© 2026 School Website. All Rights Reserved."
 };
 
@@ -71,9 +73,9 @@ export const HERO_DATA = {
 };
 
 export const WELCOME_SECTION = {
-  descriptionStatus: "partial",
-  officialDescriptionAvailable: false,
-  notice: "The complete introductory overview was not recovered in the indexed source. The structure below provides a transparent placeholder representation pending official copy verification.",
+  descriptionStatus: "demonstration",
+  officialDescriptionAvailable: true,
+  notice: "Interactive school portal demonstration model. Institutional details, leadership profiles, and academic dates are configurable via the Identity Settings panel.",
   summaryCopy: "Welcome to our academic community. Rooted in values of integrity, scholarship, and service, our institution is dedicated to fostering an environment where every young learner explores their full potential, develops critical thinking, and prepares to make a meaningful difference.",
   callsToAction: [
     { label: "About Us", path: "/about", variant: "primary" },
@@ -84,17 +86,17 @@ export const WELCOME_SECTION = {
 export const LEADERSHIP_PROMPTS = [
   {
     role: "Principal",
-    promptLabel: "ASK Principal",
-    destinationOrForm: "not_recovered",
-    imageAsset: "not_recovered",
-    statusNote: "Submission endpoint not recovered in indexed data. Action opens informational dialogue."
+    promptLabel: "Inquire with Principal",
+    destinationOrForm: "info_dialogue",
+    imageAsset: "leadership_demo",
+    statusNote: "Demonstration inquiry channel. Opens informational leadership orientation dialogue."
   },
   {
     role: "Vice Principal",
-    promptLabel: "ASK Vice Principal",
-    destinationOrForm: "not_recovered",
-    imageAsset: "not_recovered",
-    statusNote: "Submission endpoint not recovered in indexed data. Action opens informational dialogue."
+    promptLabel: "Inquire with Vice Principal",
+    destinationOrForm: "info_dialogue",
+    imageAsset: "leadership_demo",
+    statusNote: "Demonstration inquiry channel. Opens academic curriculum advisory dialogue."
   }
 ];
 

@@ -140,9 +140,83 @@ assert(schoolContentSource.includes('2026-08-15') && schoolContentSource.include
 assert(schoolContentSource.includes('2026-10-02') && schoolContentSource.includes('Gandhi Jayanti'), 'Calendar must include 2026 Gandhi Jayanti');
 assert(schoolContentSource.includes('2026-11-08') && schoolContentSource.includes('Diwali'), 'Calendar must include 2026 Diwali');
 
-console.log('  ✓ index.html and ConfigDrawer include dedicated favicon section');
-console.log('  ✓ Footer includes copyright section stating "All rights is owned by ALEX" below developer attribution');
-console.log('  ✓ Calendar displays current year (2026) festivals and gazetted holidays instead of previous year (2025)');
+// 8. Prototype Audit & Overlay Collision Verification
+console.log('\n[Test 8: Prototype Audit & Overlay Collision Verification]');
+const admissionsContent = fs.readFileSync('src/pages/AdmissionsPage.jsx', 'utf-8');
+const aboutContent = fs.readFileSync('src/pages/AboutPage.jsx', 'utf-8');
+
+assert(!admissionsContent.includes('[Add verified'), 'AdmissionsPage must not have [Add verified] bracket');
+assert(!admissionsContent.includes('[Fee structure'), 'AdmissionsPage must not have [Fee structure] bracket');
+assert(!admissionsContent.includes('[Official document'), 'AdmissionsPage must not have [Official document] bracket');
+assert(!aboutContent.includes('[Add verified school history]'), 'AboutPage must not have [Add verified school history] bracket');
+assert(!configDrawerContent.includes('[Principal Name]'), 'ConfigDrawer must not have [Principal Name] placeholder');
+assert(!configDrawerContent.includes('[Verified School Address]'), 'ConfigDrawer must not have [Verified School Address] placeholder');
+assert(!footerContent.includes('Identity Profile: PLACEHOLDER'), 'Footer must not have raw placeholder text');
+
+// Faith navigation link must not contain unexplained asterisk
+assert(!navbarContent.includes('*</span>'), 'Navbar must not render unexplained asterisk on Faith link');
+
+// Footer stop must be on left flank away from Column 3 contact information
+assert.strictEqual(MOVEMENT_STOPS['footer-stop'].side, 'left', 'footer-stop must be on left flank to clear Column 3 contact details');
+
+// Hero stop positioning clear of primary CTAs
+assert(MOVEMENT_STOPS['hero-stop'].verticalRatio <= 0.2, 'hero-stop verticalRatio must keep bubble safely clear of centered hero CTAs');
+
+// Collision obstacle avoidance test
+const testObstacle = { left: 520, top: 180, right: 670, bottom: 230 };
+const collisionLayout = calculateSafeAssistantLayout({
+  stop: MOVEMENT_STOPS['hero-stop'],
+  viewportWidth: 1024,
+  viewportHeight: 768,
+  deviceMode: 'desktop',
+  isBubbleOpen: true,
+  bubbleDimensions: { width: 310, height: 130 },
+  obstacles: [testObstacle]
+});
+const bubbleRight = collisionLayout.bubble.x + collisionLayout.bubble.width;
+const bubbleBottom = collisionLayout.bubble.y + 130;
+const hasIntersection = !(
+  bubbleRight < testObstacle.left ||
+  collisionLayout.bubble.x > testObstacle.right ||
+  bubbleBottom < testObstacle.top ||
+  collisionLayout.bubble.y > testObstacle.bottom
+);
+assert(!hasIntersection, 'calculateSafeAssistantLayout must resolve obstacle collision without overlap');
+
+// ScrollToTop supports anchor hash navigation
+const appContent = fs.readFileSync('src/App.jsx', 'utf-8');
+assert(appContent.includes('hash') && appContent.includes('scrollIntoView'), 'App.jsx ScrollToTop must preserve anchor hashes');
+
+// NotFoundPage Go Back history fallback
+const notFoundContent = fs.readFileSync('src/pages/NotFoundPage.jsx', 'utf-8');
+assert(notFoundContent.includes('handleGoBack') && notFoundContent.includes("navigate('/')"), 'NotFoundPage must have history fallback to homepage');
+
+console.log('  ✓ No raw template placeholders leak in Admissions, About, ConfigDrawer, or Footer');
+console.log('  ✓ Faith navigation label free of unexplained asterisk');
+console.log('  ✓ Footer-stop anchored safely on left flank clear of Column 3 contact details');
+console.log('  ✓ Collision-aware positioning successfully evades interactive obstacles');
+console.log('  ✓ ScrollToTop preserves anchor hashes and NotFoundPage includes Go Back fallback');
+
+// Test 9: Leadership Portrait Placeholders and Configurable Photo Override
+console.log('\n[Test 9: Leadership Portrait Placeholders & Configurable Photo Override]');
+const leadershipPortraitContent = fs.readFileSync('src/components/LeadershipPortrait.jsx', 'utf-8');
+assert(leadershipPortraitContent.includes('LeadershipPortrait'), 'LeadershipPortrait component must exist');
+assert(leadershipPortraitContent.includes('clay-portrait-principal'), 'Must contain distinct principal 3D clay bust artwork');
+assert(leadershipPortraitContent.includes('clay-portrait-vice-principal'), 'Must contain distinct vice principal 3D clay bust artwork');
+assert(leadershipPortraitContent.includes('Principal portrait placeholder'), 'Must include required alt text identifying Principal placeholder');
+assert(leadershipPortraitContent.includes('Vice principal portrait placeholder'), 'Must include required alt text identifying Vice Principal placeholder');
+assert(leadershipPortraitContent.includes('photoUrl'), 'Must support photoUrl override for authorized real photographs');
+
+const schoolContentJs = fs.readFileSync('src/data/schoolContent.js', 'utf-8');
+assert(schoolContentJs.includes('principalPhotoUrl'), 'DEFAULT_CONFIG must define configurable principalPhotoUrl');
+assert(schoolContentJs.includes('vicePrincipalPhotoUrl'), 'DEFAULT_CONFIG must define configurable vicePrincipalPhotoUrl');
+
+assert(configDrawerContent.includes('principalPhotoUrl') && configDrawerContent.includes('vicePrincipalPhotoUrl'), 'ConfigDrawer must provide controls to configure both portraits');
+
+console.log('  ✓ LeadershipPortrait component provides distinct Principal & Vice Principal 3D clay busts');
+console.log('  ✓ Alt text correctly identifies placeholders ("Principal portrait placeholder", "Vice principal portrait placeholder")');
+console.log('  ✓ Configurable photoUrl supported with default null in schoolContent.js');
+console.log('  ✓ ConfigDrawer provides upload/replace/remove controls for both portraits');
 
 console.log('\n=== ALL AUDIT CHECKS PASSED (100%) ===\n');
 

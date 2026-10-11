@@ -43,11 +43,16 @@ const getPageGreeting = (pathname) => {
         tip: 'Fill in your details below; format hints will guide you.'
       };
     case '/':
-    default:
       return {
         title: 'Welcome to School Website! 🦉',
         text: 'I am Barnaby, your campus guide. Explore student life dimensions or visit our admissions and academic portals.',
         tip: 'Notice how I settle into safe section stops as you scroll!'
+      };
+    default:
+      return {
+        title: 'Looking for Campus Info? 🧭',
+        text: "I am Barnaby. It looks like this page isn't on our campus map. Let me guide you back to our main portal.",
+        tip: 'Click Home in the top navigation bar to return safely.'
       };
   }
 };

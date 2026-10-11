@@ -44,23 +44,23 @@ export const AdmissionsPage = () => {
       {/* Main Content */}
       <section className="section" data-section-id="admissions-portal">
         <div className="container">
-          {/* Policy Notice Box */}
-          <div className="notice-box warning">
+          {/* Demonstration Notice Box */}
+          <div className="notice-box info" style={{ background: 'linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%)', border: '1.5px solid #bfdbfe', borderRadius: '16px', padding: '1.25rem' }}>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <AlertCircle size={22} style={{ flexShrink: 0, marginTop: '2px', color: '#d97706' }} />
+              <ShieldCheck size={22} style={{ flexShrink: 0, marginTop: '2px', color: '#2563eb' }} />
               <div>
-                <strong style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem', color: '#92400e' }}>
-                  Admissions Policy & Verified Content Notice
+                <strong style={{ display: 'block', fontSize: '0.95rem', marginBottom: '0.25rem', color: '#1e40af' }}>
+                  Demonstration Admissions Desk ({config.academicYear})
                 </strong>
-                <p style={{ margin: 0, fontSize: '0.875rem', color: '#78350f', lineHeight: 1.6 }}>
-                  In strict compliance with factual guidelines, official fee schedules, age eligibility thresholds, specific entrance examination dates, and mandatory document check-lists have not been fabricated. Official admissions brochures must be confirmed directly with school administration.
+                <p style={{ margin: 0, fontSize: '0.875rem', color: '#1e3a8a', lineHeight: 1.6 }}>
+                  Welcome to the demo admissions portal. The enrollment guidelines, grade criteria, and documentation checklists below illustrate standard campus application workflows. In custom school deployments, all criteria and fee structures can be configured via the administrative panel.
                 </p>
               </div>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem', marginTop: '2.5rem' }}>
-            {/* Admissions Criteria & Placeholders */}
+            {/* Admissions Criteria & Guidelines */}
             <div>
               <h2 style={{ fontSize: '1.85rem', marginBottom: '1.25rem' }}>
                 Application Process & Guidelines
@@ -75,17 +75,17 @@ export const AdmissionsPage = () => {
                   <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
                     1. Eligibility & Age Criteria
                   </h4>
-                  <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '6px', fontSize: '0.875rem', color: '#64748b' }}>
-                    <strong>[Add verified admissions information]</strong>: Age brackets and grade prerequisites await administrative publication.
+                  <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '6px', fontSize: '0.875rem', color: '#475569', lineHeight: 1.6 }}>
+                    Grade placement follows standard age-readiness guidelines. Pre-K entrants must reach 3+ years by the start of the academic term; Grade 1 entrants must be 5+ years. Senior grade placements include diagnostic evaluations for curricular alignment.
                   </div>
                 </div>
 
                 <div className="card" style={{ padding: '1.5rem' }}>
                   <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
-                    2. Tuition & Admission Fees
+                    2. Tuition & Fee Framework
                   </h4>
-                  <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '6px', fontSize: '0.875rem', color: '#64748b' }}>
-                    <strong>[Fee structure pending official publication]</strong>: We do not invent fee figures or payment gateways. Inquire at the office for authentic fee structures.
+                  <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '6px', fontSize: '0.875rem', color: '#475569', lineHeight: 1.6 }}>
+                    Demonstration Fee Schedule: Annual tuition covers core academic instruction, library and digital laboratory privileges, and extracurricular athletics. Detailed term schedules and transport options are provided upon direct inquiry.
                   </div>
                 </div>
 
@@ -93,8 +93,8 @@ export const AdmissionsPage = () => {
                   <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
                     3. Required Documentation
                   </h4>
-                  <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '6px', fontSize: '0.875rem', color: '#64748b' }}>
-                    <strong>[Official document checklist pending verification]</strong>: Birth certificates, transfer certificates, and previous academic transcripts require confirmation by school authorities.
+                  <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '6px', fontSize: '0.875rem', color: '#475569', lineHeight: 1.6 }}>
+                    Required documentation includes: Official birth certificate, previous school transfer certificate (TC), verified academic report cards from recent terms, recent passport photographs, and proof of residential address.
                   </div>
                 </div>
               </div>
@@ -153,12 +153,14 @@ export const AdmissionsPage = () => {
                   className="btn btn-primary"
                   style={{ width: '100%' }}
                   onClick={handleApplyClick}
+                  data-helper-title="Digital Application (Demo Simulation)"
+                  data-helper-description="Displays demo admissions application guidance dialogue."
                 >
-                  <Send size={16} /> Submit Digital Application Request
+                  <Send size={16} /> Submit Application Request (Demo Simulation)
                 </button>
 
                 <div style={{ textAlign: 'center', marginTop: '0.75rem', fontSize: '0.75rem', color: '#94a3b8' }}>
-                  ℹ️ Click triggers informational prototype dialogue.
+                  ℹ️ Demo Prototype Notice: Admissions inquiries are simulated client-side. Contact {config.email} for official application packages.
                 </div>
               </div>
             </div>

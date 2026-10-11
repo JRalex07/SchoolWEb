@@ -11,7 +11,7 @@ export const MascotCharacter = ({ state = 'idle', onClick, size = 84, style = {}
   const [isBlinking, setIsBlinking] = useState(false);
 
   useEffect(() => {
-    if (state !== 'idle' && state !== 'greeting' && state !== 'reassuring') return;
+    if (state !== 'idle' && state !== 'greeting' && state !== 'reassuring' && state !== 'listening' && state !== 'resting') return;
     const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
@@ -33,8 +33,11 @@ export const MascotCharacter = ({ state = 'idle', onClick, size = 84, style = {}
         return { x: 2, y: 0.5 }; // Looking towards element
       case 'curious':
         return { x: 1.8, y: -1.2 }; // Looking up-right inquisitively
+      case 'listening':
       case 'attentive':
         return { x: 0, y: 1.2 }; // Attentive downward-forward focus
+      case 'resting':
+        return { x: 0, y: 0 }; // Relaxed calm centered gaze
       case 'reassuring':
         return { x: 0, y: 0.5 }; // Calm centered comforting gaze
       case 'confused':
@@ -192,6 +195,18 @@ export const MascotCharacter = ({ state = 'idle', onClick, size = 84, style = {}
             <path d="M22 56 Q 10 44 16 34 Q 26 42 27 52 Z" fill="#d08622" className="mascot-anim-cheer-left" filter="url(#softShadow)" />
             <path d="M78 56 Q 90 44 84 34 Q 74 42 73 52 Z" fill="#d08622" className="mascot-anim-cheer-right" filter="url(#softShadow)" />
           </>
+        ) : state === 'resting' ? (
+          /* Rested wings softly folded against sides */
+          <>
+            <path d="M22 57 Q 15 65 20 74 Q 28 72 27 61 Z" fill="#d08622" />
+            <path d="M78 57 Q 85 65 80 74 Q 72 72 73 61 Z" fill="#d08622" />
+          </>
+        ) : state === 'listening' ? (
+          /* Attentive listening wings, one slightly poised */
+          <>
+            <path d="M22 56 Q 14 64 19 74 Q 28 72 27 61 Z" fill="#d08622" />
+            <path d="M78 56 Q 85 63 82 73 Q 73 72 74 61 Z" fill="#d08622" filter="url(#softShadow)" />
+          </>
         ) : (
           /* Rested Friendly Wings (idle, attentive, reassuring) */
           <>
@@ -230,6 +245,18 @@ export const MascotCharacter = ({ state = 'idle', onClick, size = 84, style = {}
             <path d="M33 42 Q 40 40 46 37" stroke="#713f12" strokeWidth="2.8" strokeLinecap="round" fill="none" />
             <path d="M67 34 Q 60 32 54 39" stroke="#713f12" strokeWidth="2.8" strokeLinecap="round" fill="none" />
           </>
+        ) : state === 'listening' ? (
+          /* Calm attentive listening arches */
+          <>
+            <path d="M33 37 Q 40 33 46 37" stroke="#713f12" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+            <path d="M67 37 Q 60 33 54 37" stroke="#713f12" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+          </>
+        ) : state === 'resting' ? (
+          /* Relaxed gentle resting arches */
+          <>
+            <path d="M33 40 Q 40 38 46 40" stroke="#713f12" strokeWidth="2.0" strokeLinecap="round" fill="none" />
+            <path d="M67 40 Q 60 38 54 40" stroke="#713f12" strokeWidth="2.0" strokeLinecap="round" fill="none" />
+          </>
         ) : state === 'reassuring' ? (
           /* Soft gentle uplifting arches */
           <>
@@ -252,6 +279,12 @@ export const MascotCharacter = ({ state = 'idle', onClick, size = 84, style = {}
             <path d="M52 49 Q 59 41 66 49" stroke="#0f1e36" strokeWidth="4" strokeLinecap="round" fill="none" />
             {/* Sparkle star over head */}
             <path d="M50 32 L51.5 36.5 L56 38 L51.5 39.5 L50 44 L48.5 39.5 L44 38 L48.5 36.5 Z" fill="url(#barnabyGold)" />
+          </>
+        ) : state === 'resting' ? (
+          /* Peaceful resting half-closed curved eyelids */
+          <>
+            <path d="M34 50 Q 41 54 48 50" stroke="#0f1e36" strokeWidth="3.2" strokeLinecap="round" fill="none" />
+            <path d="M52 50 Q 59 54 66 50" stroke="#0f1e36" strokeWidth="3.2" strokeLinecap="round" fill="none" />
           </>
         ) : isBlinking ? (
           /* Natural blink eyelid slit */
@@ -313,6 +346,18 @@ export const MascotCharacter = ({ state = 'idle', onClick, size = 84, style = {}
           <g transform="translate(0, 0)">
             <polygon points="50,54 43,59 57,59" fill="#eab308" stroke="#a16207" strokeWidth="1" />
             <path d="M45 59 Q 50 57 55 59" stroke="#78350f" strokeWidth="1.2" fill="none" />
+          </g>
+        ) : state === 'resting' ? (
+          /* Gentle serene resting closed beak */
+          <g transform="translate(0, 0)">
+            <polygon points="50,54 43,60 57,60" fill="#eab308" stroke="#a16207" strokeWidth="1" />
+            <path d="M45 60 Q 50 62 55 60" stroke="#92400e" strokeWidth="0.8" fill="none" />
+          </g>
+        ) : state === 'listening' ? (
+          /* Calm attentive listening beak */
+          <g transform="translate(0, 0)">
+            <polygon points="50,54 43,60 57,60" fill="#eab308" stroke="#a16207" strokeWidth="1" />
+            <ellipse cx="50" cy="59" rx="4.5" ry="1.8" fill="#fef08a" opacity="0.8" />
           </g>
         ) : state === 'reassuring' ? (
           /* Gentle comforting smile beak */

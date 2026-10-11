@@ -10,6 +10,7 @@ import {
   HIGHLIGHT_THEMES,
   SUPPORT_SECTION
 } from '../data/schoolContent';
+import { LeadershipPortrait } from '../components/LeadershipPortrait';
 import {
   GraduationCap,
   Trophy,
@@ -157,7 +158,7 @@ export const HomePage = () => {
               <Link
                 to="/about"
                 className="btn btn-primary"
-                style={{ minWidth: '150px' }}
+                style={{ minWidth: 'min(100%, 150px)' }}
                 data-helper-title="About Our Institution"
                 data-helper-description="Learn about our institutional vision, foundational pillars, and executive leadership."
                 data-helper-example="Click to visit the About page"
@@ -167,7 +168,7 @@ export const HomePage = () => {
               <Link
                 to="/admissions"
                 className="btn btn-outline-white"
-                style={{ minWidth: '150px' }}
+                style={{ minWidth: 'min(100%, 150px)' }}
                 data-helper-title="Admissions Overview"
                 data-helper-description="Review enrollment guidelines, grade criteria, and direct inquiry channels."
                 data-helper-example="Click to view admissions guidelines"
@@ -352,41 +353,103 @@ export const HomePage = () => {
             </p>
           </div>
 
-          {/* Leadership Direct Action Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '3.5rem' }}>
-            {LEADERSHIP_PROMPTS.map((lead, idx) => (
-              <div
-                key={idx}
-                className="card"
-                data-helper-title={`${lead.role} Inquiry Office`}
-                data-helper-description={`Submit questions regarding curricula or institutional policies to the ${lead.role}.`}
-                data-helper-example="Opens informational inquiry dialogue"
-                style={{
-                  background: 'linear-gradient(168deg, #FFFEFC 0%, #FAF5EC 100%)',
-                  border: '1.5px solid rgba(255, 255, 255, 0.9)',
-                  borderRadius: 'var(--radius-card)',
-                  padding: '1.75rem'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                  <MessageSquare size={22} color="var(--color-accent)" />
-                  <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{lead.role} Office</h3>
-                </div>
-                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
-                  Have questions about academic curricula or institutional guidance? Submit an inquiry to the {lead.role}.
+          {/* Executive Leadership Profile Cards with 3D Clay Portraits */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 'clamp(1.25rem, 3vw, 2rem)', marginBottom: '3.5rem' }}>
+            {/* Principal Profile Card */}
+            <div
+              className="card leadership-card"
+              data-helper-title="Principal Leadership Profile"
+              data-helper-description={`Meet ${config.principalName}, Principal and instructional leader.`}
+              style={{
+                background: 'linear-gradient(168deg, #FFFEFC 0%, #FAF5EE 100%)',
+                border: '2px solid rgba(255, 255, 255, 0.95)',
+                borderRadius: '30px',
+                padding: '2.25rem 1.75rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: '1.25rem',
+                boxShadow: 'var(--clay-card)',
+                transition: 'transform 0.25s ease, box-shadow 0.25s ease'
+              }}
+            >
+              <LeadershipPortrait
+                role="principal"
+                photoUrl={config.principalPhotoUrl}
+                name={config.principalName}
+                size={144}
+              />
+              <div style={{ width: '100%' }}>
+                <span className="badge badge-info" style={{ fontSize: '0.72rem', marginBottom: '0.5rem', display: 'inline-block' }}>
+                  Principal & Head of School
+                </span>
+                <h3 style={{ margin: '0.25rem 0', fontSize: '1.35rem', color: 'var(--color-primary)' }}>
+                  {config.principalName}
+                </h3>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.6, margin: '0.5rem 0 1.25rem 0' }}>
+                  Leading our campus community with a commitment to academic rigor, character formation, and student-centered mentorship.
                 </p>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
-                  onClick={() => handleLeadershipPrompt(lead.role)}
+                  onClick={() => handleLeadershipPrompt('Principal')}
                   style={{ width: '100%' }}
-                  data-helper-title={lead.promptLabel}
-                  data-helper-description={`Click to initiate inquiry dialogue with the ${lead.role}.`}
+                  data-helper-title="Inquire with Principal"
+                  data-helper-description="Opens informational leadership dialogue with the Principal."
                 >
-                  {lead.promptLabel}
+                  <MessageSquare size={16} /> Inquire with Principal
                 </button>
               </div>
-            ))}
+            </div>
+
+            {/* Vice Principal Profile Card */}
+            <div
+              className="card leadership-card"
+              data-helper-title="Vice Principal Leadership Profile"
+              data-helper-description={`Meet ${config.vicePrincipalName}, Vice Principal and Dean of Studies.`}
+              style={{
+                background: 'linear-gradient(168deg, #FFFEFC 0%, #FAF5EE 100%)',
+                border: '2px solid rgba(255, 255, 255, 0.95)',
+                borderRadius: '30px',
+                padding: '2.25rem 1.75rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: '1.25rem',
+                boxShadow: 'var(--clay-card)',
+                transition: 'transform 0.25s ease, box-shadow 0.25s ease'
+              }}
+            >
+              <LeadershipPortrait
+                role="vicePrincipal"
+                photoUrl={config.vicePrincipalPhotoUrl}
+                name={config.vicePrincipalName}
+                size={144}
+              />
+              <div style={{ width: '100%' }}>
+                <span className="badge badge-warning" style={{ fontSize: '0.72rem', marginBottom: '0.5rem', display: 'inline-block' }}>
+                  Vice Principal & Dean of Studies
+                </span>
+                <h3 style={{ margin: '0.25rem 0', fontSize: '1.35rem', color: 'var(--color-primary)' }}>
+                  {config.vicePrincipalName}
+                </h3>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.6, margin: '0.5rem 0 1.25rem 0' }}>
+                  Championing pedagogical excellence, curricular development, and active student mentorship across all departments.
+                </p>
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => handleLeadershipPrompt('Vice Principal')}
+                  style={{ width: '100%' }}
+                  data-helper-title="Inquire with Vice Principal"
+                  data-helper-description="Opens informational curriculum advisory dialogue with the Vice Principal."
+                >
+                  <MessageSquare size={16} /> Inquire with Vice Principal
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Testimonials Grid with Verification Badges */}

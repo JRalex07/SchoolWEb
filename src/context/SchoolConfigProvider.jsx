@@ -8,9 +8,18 @@ export const SchoolConfigProvider = ({ children }) => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.identityMode === 'placeholder' && (parsed.schoolName === '[Your School Name]' || !parsed.schoolName)) {
-          parsed.schoolName = DEFAULT_CONFIG.schoolName;
+        if (parsed.identityMode === 'placeholder' || parsed.identityMode === 'demo') {
+          parsed.identityMode = 'demo';
+          if (!parsed.schoolName || parsed.schoolName === '[Your School Name]') parsed.schoolName = DEFAULT_CONFIG.schoolName;
+          if (!parsed.principalName || parsed.principalName.includes('[')) parsed.principalName = DEFAULT_CONFIG.principalName;
+          if (!parsed.vicePrincipalName || parsed.vicePrincipalName.includes('[')) parsed.vicePrincipalName = DEFAULT_CONFIG.vicePrincipalName;
+          if (!parsed.address || parsed.address.includes('[') || parsed.address.includes('Education City')) parsed.address = DEFAULT_CONFIG.address;
+          if (!parsed.phone || parsed.phone.includes('[') || parsed.phone.includes('xxxxxxxxx')) parsed.phone = DEFAULT_CONFIG.phone;
+          if (!parsed.email || parsed.email.includes('[') || parsed.email.includes('school-prototype.edu')) parsed.email = DEFAULT_CONFIG.email;
+          if (!parsed.academicYear || parsed.academicYear.includes('[')) parsed.academicYear = DEFAULT_CONFIG.academicYear;
         }
+        if (parsed.principalPhotoUrl === undefined) parsed.principalPhotoUrl = null;
+        if (parsed.vicePrincipalPhotoUrl === undefined) parsed.vicePrincipalPhotoUrl = null;
         return parsed;
       } catch (e) {
         console.error("Failed to parse stored config", e);
@@ -66,10 +75,10 @@ export const SchoolConfigProvider = ({ children }) => {
   }, [currentEvents]);
 
   const setMode = (mode) => {
-    if (mode === 'placeholder' || mode === 'default') {
+    if (mode === 'demo' || mode === 'placeholder' || mode === 'default') {
       setConfig({
         ...DEFAULT_CONFIG,
-        identityMode: 'placeholder'
+        identityMode: 'demo'
       });
     }
   };

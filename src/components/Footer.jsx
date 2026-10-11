@@ -52,7 +52,7 @@ export const Footer = () => {
 
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', padding: '0.5rem 0.85rem', borderRadius: '6px', fontSize: '0.775rem', border: '1px solid rgba(255,255,255,0.1)' }}>
               <ShieldCheck size={16} color="var(--color-accent-light)" />
-              <span>Identity Profile: <strong>{config.identityMode.toUpperCase()}</strong></span>
+              <span>Identity Profile: <strong>{config.identityMode === 'demo' ? 'DEMO SPECIFICATION' : config.identityMode.toUpperCase()}</strong></span>
             </div>
           </div>
 
@@ -85,28 +85,36 @@ export const Footer = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.925rem' }}>
               <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
                 <MapPin size={18} color="var(--color-accent)" style={{ flexShrink: 0, marginTop: '3px' }} />
-                <span style={{ color: '#94a3b8' }}>{config.address}</span>
+                <span style={{ color: '#94a3b8' }}>{config.address || 'Address not configured in this demo'}</span>
               </div>
               <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                 <Phone size={18} color="var(--color-accent)" style={{ flexShrink: 0 }} />
-                <a href={`tel:${config.phone.replace(/[^0-9+]/g, '')}`} style={{ color: '#cbd5e1' }}>
-                  {config.phone}
-                </a>
+                {config.phone ? (
+                  <a href={`tel:${config.phone.replace(/[^0-9+]/g, '')}`} style={{ color: '#cbd5e1' }}>
+                    {config.phone}
+                  </a>
+                ) : (
+                  <span style={{ color: '#94a3b8' }}>Phone not configured in this demo</span>
+                )}
               </div>
               <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                 <Mail size={18} color="var(--color-accent)" style={{ flexShrink: 0 }} />
-                <a href={`mailto:${config.email}`} style={{ color: '#cbd5e1' }}>
-                  {config.email}
-                </a>
+                {config.email ? (
+                  <a href={`mailto:${config.email}`} style={{ color: '#cbd5e1' }}>
+                    {config.email}
+                  </a>
+                ) : (
+                  <span style={{ color: '#94a3b8' }}>Email not configured in this demo</span>
+                )}
               </div>
             </div>
           </div>
 
         </div>
 
-        {/* Audit & Compliance Disclaimer */}
+        {/* Prototype Standards & Information */}
         <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '1rem 1.25rem', marginBottom: '2rem', fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.6 }}>
-          <strong style={{ color: '#e2e8f0' }}>Integrity &amp; Prototype Standards:</strong> All public information reflects verified institutional datasets. Missing administrative details (curriculum syllabi, payment gateways, exact testimonials) remain explicitly marked as requiring verification. Configurable identity prevents unverified attribution.
+          <strong style={{ color: '#e2e8f0' }}>Demonstration Standards:</strong> This prototype showcases an accessible, multi-school web platform featuring responsive claymorphism styling, centralized branding controls, and an interactive campus guide.
         </div>
 
         {/* Bottom copyright line */}

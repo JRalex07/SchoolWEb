@@ -384,14 +384,14 @@ export const ContactPage = () => {
                     type="submit"
                     className="btn btn-primary"
                     style={{ width: '100%' }}
-                    data-helper-title="Submit Contact Inquiry"
+                    data-helper-title="Submit Message (Demo Simulation)"
                     data-helper-description="Validates form entries and simulates message routing to the administrative desk."
                   >
-                    <Send size={16} /> Submit Message
+                    <Send size={16} /> Send Message (Demo Simulation)
                   </button>
 
                   <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.75rem', color: '#94a3b8' }}>
-                    ℹ️ Form submission triggers verified validation and prototype feedback.
+                    ℹ️ Demo Prototype Notice: Message transmission is simulated client-side. No emails are transmitted to an external inbox.
                   </div>
                 </form>
               </div>

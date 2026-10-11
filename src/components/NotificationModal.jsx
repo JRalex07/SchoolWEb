@@ -29,15 +29,20 @@ export const NotificationModal = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
         >
           <motion.div 
             className="modal-card" 
+            style={{
+              maxWidth: 'min(100%, 560px)',
+              borderRadius: 'clamp(20px, 3.5vw, 28px)',
+              willChange: 'transform, opacity'
+            }}
             onClick={(e) => e.stopPropagation()}
-            initial={{ scale: 0.92, opacity: 0, y: 15 }}
+            initial={{ scale: 0.95, opacity: 0, y: 14 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.92, opacity: 0, y: 15 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            exit={{ scale: 0.95, opacity: 0, y: 14 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

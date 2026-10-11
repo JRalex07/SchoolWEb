@@ -41,6 +41,17 @@ async function run() {
   assert(mascotProvider.includes('MascotProvider'), 'MascotProvider must export component');
   console.log('  ✓ MascotProvider cleanly isolates Provider component boundary');
 
+  // Verify ConfigDrawer and LeadershipPortrait compile cleanly
+  const configDrawer = await fetch('/src/components/ConfigDrawer.jsx');
+  assert(!configDrawer.includes('[PARSE_ERROR]'), 'ConfigDrawer must not have parse errors');
+  assert(configDrawer.includes('ConfigDrawer'), 'ConfigDrawer must export component');
+  console.log('  ✓ ConfigDrawer compiles cleanly and exports component');
+
+  const leadershipPortrait = await fetch('/src/components/LeadershipPortrait.jsx');
+  assert(!leadershipPortrait.includes('[PARSE_ERROR]'), 'LeadershipPortrait must not have parse errors');
+  assert(leadershipPortrait.includes('LeadershipPortrait'), 'LeadershipPortrait must export component');
+  console.log('  ✓ LeadershipPortrait compiles cleanly and exports component');
+
   console.log('\n=== ALL FAST REFRESH CHECKS PASSED (100%) ===');
 }
 

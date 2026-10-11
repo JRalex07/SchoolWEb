@@ -35,7 +35,9 @@ const ALL_EXPRESSION_STATES = [
   'warning',
   'reassuring',
   'success',
-  'confused'
+  'confused',
+  'listening',
+  'resting'
 ];
 
 // Read MascotCharacter.jsx source to verify every state is explicitly handled
