@@ -14,7 +14,7 @@ export const DEFAULT_CONFIG = {
   vicePrincipalPhotoUrl: null, // Optional real photo URL; defaults to sculpted 3D clay bust
   address: "SInuara, Darbhanaga,BIhar 846003",
   phone: "+91 XXXXXXXXXX",
-  email: "[EMAIL_ADDRESS]",
+  email: "developer@cloudpower.store",
   academicYear: "2026–2027",
   faithSectionPublished: false, // Leave unpublished by default in prototype
   identityMode: "demo", // 'demo' | 'custom'

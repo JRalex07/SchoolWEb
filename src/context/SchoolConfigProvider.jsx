@@ -20,6 +20,9 @@ export const SchoolConfigProvider = ({ children }) => {
         }
         if (parsed.principalPhotoUrl === undefined) parsed.principalPhotoUrl = null;
         if (parsed.vicePrincipalPhotoUrl === undefined) parsed.vicePrincipalPhotoUrl = null;
+        if (!parsed.email || parsed.email.includes('[') || parsed.email === '[EMAIL_ADDRESS]') {
+          parsed.email = DEFAULT_CONFIG.email;
+        }
         return parsed;
       } catch (e) {
         console.error("Failed to parse stored config", e);
