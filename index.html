@@ -7,6 +7,43 @@
   <title>School Website Portal | Excellence in Education</title>
   <meta name="description"
     content="Official school website portal featuring academic excellence, leadership development, campus activities, school calendar, and community initiatives." />
+  <link rel="canonical" href="https://school.alex.runs-on.dev/" />
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:title" content="School Website Portal | Excellence in Education" />
+  <meta property="og:description" content="Explore our school website portal featuring academic excellence, leadership development, campus activities, school calendar, and admissions guidelines." />
+  <meta property="og:url" content="https://school.alex.runs-on.dev/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://school.alex.runs-on.dev/default-school-logo.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="School Website Portal | Excellence in Education" />
+  <meta name="twitter:description" content="Explore our school website portal featuring academic excellence, leadership development, campus activities, school calendar, and admissions guidelines." />
+  <meta name="twitter:image" content="https://school.alex.runs-on.dev/default-school-logo.svg" />
+
+  <!-- Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "School Website",
+    "url": "https://school.alex.runs-on.dev",
+    "logo": "https://school.alex.runs-on.dev/default-school-logo.svg",
+    "description": "Official school website portal featuring academic excellence, leadership development, campus activities, school calendar, and community initiatives."
+  }
+  </script>
+
+  <!-- GitHub Pages SPA routing restorer -->
+  <script>
+    (function () {
+      var searchParams = new URLSearchParams(window.location.search);
+      var p = searchParams.get('p');
+      if (p) {
+        var cleanPath = decodeURIComponent(p);
+        var q = searchParams.get('q');
+        var newUrl = cleanPath + (q ? '?' + decodeURIComponent(q) : '') + window.location.hash;
+        window.history.replaceState(null, null, newUrl);
+      }
+    })();
+  </script>
   <!-- Favicon Section -->
   <link rel="icon" type="image/svg+xml" href="/default-school-logo.svg" id="app-favicon" />
   <link rel="alternate icon" href="/default-school-logo.svg" />

@@ -250,7 +250,7 @@ export const ContactPage = () => {
                   <div>
                     <h4 style={{ fontSize: '0.95rem', margin: 0, marginBottom: '0.15rem', color: 'var(--color-primary)' }}>Email Inquiries</h4>
                     {config.email ? (
-                      <a href={`mailto:${config.email}`} style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.9rem' }}>
+                      <a href={`mailto:${config.email}`} style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.9rem', wordBreak: 'break-word' }}>
                         {config.email}
                       </a>
                     ) : (

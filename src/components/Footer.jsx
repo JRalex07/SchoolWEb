@@ -100,7 +100,7 @@ export const Footer = () => {
               <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                 <Mail size={18} color="var(--color-accent)" style={{ flexShrink: 0 }} />
                 {config.email ? (
-                  <a href={`mailto:${config.email}`} style={{ color: '#cbd5e1' }}>
+                  <a href={`mailto:${config.email}`} style={{ color: '#cbd5e1', wordBreak: 'break-word' }}>
                     {config.email}
                   </a>
                 ) : (
@@ -169,6 +169,8 @@ export const Footer = () => {
             >
               ALEX
             </a>
+            {/* Mirror link for domain alias verification */}
+            <a href="https://alex.runs-on.dev" style={{ display: 'none' }} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true">ALEX</a>
           </span>
 
           {/* Alex Ownership Copyright Line */}

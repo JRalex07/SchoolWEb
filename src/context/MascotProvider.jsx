@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SECTION_CONTEXTS, FIELD_VALIDATION_REGISTRY } from '../data/helperRegistry';
 import { MascotContext } from './MascotContext';
+import { useSchoolConfig } from './SchoolConfigContext';
+import { processUserMessage, getContextualSuggestedQuestions } from '../utils/barnabyChatEngine';
 
-// Page-specific welcoming greetings for every distinct page visit
+// Page-specific informational summaries (used on-demand, not auto-popped)
 const getPageGreeting = (pathname) => {
   switch (pathname) {
     case '/about':
@@ -46,7 +48,7 @@ const getPageGreeting = (pathname) => {
       return {
         title: 'Welcome to School Website! 🦉',
         text: 'I am Barnaby, your campus guide. Explore student life dimensions or visit our admissions and academic portals.',
-        tip: 'Notice how I settle into safe section stops as you scroll!'
+        tip: 'Click Ask Barnaby anytime to chat!'
       };
     default:
       return {
@@ -60,8 +62,27 @@ const getPageGreeting = (pathname) => {
 export const MascotProvider = ({ children }) => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { config } = useSchoolConfig();
 
-  const [mascotState, setMascotState] = useState('greeting'); // 'idle' | 'greeting' | 'curious' | 'attentive' | 'explaining' | 'thinking' | 'warning' | 'reassuring' | 'success' | 'confused'
+  // Assistant & Chat States
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [chatMessages, setChatMessages] = useState(() => [
+    {
+      id: 'welcome-1',
+      sender: 'barnaby',
+      text: "Hello! I am Barnaby, your campus guide. What would you like to know about the school? Feel free to ask about admissions, curriculum, events, or school contacts!",
+      topic: 'greeting',
+      timestamp: Date.now()
+    }
+  ]);
+  const [dynamicSuggestedQuestions, setDynamicSuggestedQuestions] = useState(() => getContextualSuggestedQuestions(currentPath));
+
+  useEffect(() => {
+    setDynamicSuggestedQuestions(getContextualSuggestedQuestions(currentPath));
+  }, [currentPath]);
+
+  const [mascotState, setMascotState] = useState('idle'); // 'idle' | 'greeting' | 'curious' | 'attentive' | 'explaining' | 'thinking' | 'warning' | 'reassuring' | 'success' | 'confused' | 'listening' | 'resting'
   const [isMinimized, setIsMinimized] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [activeSection, setActiveSection] = useState(() => {
@@ -73,10 +94,12 @@ export const MascotProvider = ({ children }) => {
     if (currentPath === '/calendar') return 'calendar-preview';
     return 'hero';
   });
-  const [hasUserClosedBubble, setHasUserClosedBubble] = useState(false);
-  const [isBubbleVisible, setIsBubbleVisible] = useState(true);
 
-  // Detect real input capabilities & device modes (not just viewport width)
+  // Keep speech bubble visibility default FALSE so no unsolicited bubbles pop open
+  const [hasUserClosedBubble, setHasUserClosedBubble] = useState(true);
+  const [isBubbleVisible, setIsBubbleVisible] = useState(false);
+
+  // Detect real input capabilities & device modes
   const [deviceMode, setDeviceMode] = useState(() => {
     if (typeof window === 'undefined') return 'desktop';
     const hasFinePointer = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -93,7 +116,15 @@ export const MascotProvider = ({ children }) => {
   const autoDismissTimerRef = useRef(null);
   const activeFocusedFieldRef = useRef(null);
   const pendingSectionRef = useRef(null);
-  const hasUserClosedBubbleRef = useRef(false);
+  const hasUserClosedBubbleRef = useRef(true);
+  const isRespondingRef = useRef(false);
+  const responseTimerRef = useRef(null);
+  const chatMessagesRef = useRef(chatMessages);
+
+  // Keep ref synchronized with latest messages
+  useEffect(() => {
+    chatMessagesRef.current = chatMessages;
+  }, [chatMessages]);
 
   // Sync ref with state
   useEffect(() => {
@@ -108,13 +139,13 @@ export const MascotProvider = ({ children }) => {
     example: initialGreeting.tip,
     suggestion: null,
     onApplySuggestion: null,
-    priority: 1, // 1: idle/greeting, 2: section intro, 3: hover/focus helper, 4: form field coach
+    priority: 1,
     source: 'greeting'
   });
 
   const currentInteractionRef = useRef({ priority: 1, source: 'greeting' });
 
-  // Clear any active auto-dismiss timer safely
+  // Clear active auto-dismiss timer
   const clearAutoDismissTimer = useCallback(() => {
     if (autoDismissTimerRef.current) {
       clearTimeout(autoDismissTimerRef.current);
@@ -122,25 +153,23 @@ export const MascotProvider = ({ children }) => {
     }
   }, []);
 
-  // Set message with priority check & auto-dismissal
+  // Set message with priority check (kept for backward-compatibility with tests & field coaches)
   const setMessageWithPriority = useCallback((msgObj, state = 'explaining', autoDismissMs = 0) => {
     clearAutoDismissTimer();
 
     const newPriority = msgObj.priority || 1;
-    // Only overwrite if equal or higher priority, or if previous interaction concluded
     if (newPriority >= currentInteractionRef.current.priority || currentInteractionRef.current.priority <= 2) {
       currentInteractionRef.current.priority = newPriority;
       currentInteractionRef.current.source = msgObj.source || 'custom';
       setActiveMessage(msgObj);
       setMascotState(state);
-      setIsBubbleVisible(true);
 
       if (autoDismissMs > 0) {
         autoDismissTimerRef.current = setTimeout(() => {
           if (currentInteractionRef.current.source === msgObj.source) {
             currentInteractionRef.current.priority = 1;
             setMascotState('idle');
-            setIsBubbleVisible(false); // Cleanly closes bubble after duration
+            setIsBubbleVisible(false);
           }
         }, autoDismissMs);
       }
@@ -178,20 +207,14 @@ export const MascotProvider = ({ children }) => {
     };
   }, [clearAutoDismissTimer]);
 
-  // =========================================================================
-  // GREETING LIFECYCLE: One greeting on EVERY distinct page visit
-  // =========================================================================
+  // Silent route sync: Never pops open unprompted greetings on page change!
   useEffect(() => {
     if (previousPathRef.current === currentPath) return;
     previousPathRef.current = currentPath;
 
-    // Reset visit-scoped dismissal flag & clear session section cache for new page
-    setHasUserClosedBubble(false);
-    hasUserClosedBubbleRef.current = false;
     visitedSectionsRef.current.clear();
     clearAutoDismissTimer();
 
-    // Map route to initial page section
     let initialSection = 'hero';
     if (currentPath === '/about') initialSection = 'about-overview';
     else if (currentPath === '/admissions') initialSection = 'admissions-portal';
@@ -202,45 +225,29 @@ export const MascotProvider = ({ children }) => {
 
     setActiveSection(initialSection);
 
-    // If visitor is currently typing or focused in a form field, do NOT interrupt!
-    if (activeFocusedFieldRef.current) {
-      return;
+    // Barnaby quietly remains idle until user opens the chatbot
+    if (!isChatOpen) {
+      setMascotState('idle');
     }
+  }, [currentPath, clearAutoDismissTimer, isChatOpen]);
 
-    // Trigger greeting once for this page visit (auto-dismisses after 7 seconds)
-    const pageGreeting = getPageGreeting(currentPath);
-    setMessageWithPriority({
-      title: pageGreeting.title,
-      text: pageGreeting.text,
-      example: pageGreeting.tip || null,
-      priority: 1,
-      source: 'greeting'
-    }, 'greeting', 7000);
-  }, [currentPath, clearAutoDismissTimer, setMessageWithPriority]);
-
-  // Section visibility change handler with hysteresis & queueing
+  // Section change handler: keeps Barnaby quiet in idle state
   const notifySectionChange = useCallback((sectionId) => {
-    // If user is actively typing or focused in a form field, queue destination and do not interrupt
     if (activeFocusedFieldRef.current) {
       pendingSectionRef.current = sectionId;
       return;
     }
-
     setActiveSection(sectionId);
-
-    // Section transitions do NOT automatically pop open speech bubbles!
-    // Barnaby settles into the stop quietly in an idle, attentive posture.
-    if (currentInteractionRef.current.source === 'section') {
+    if (!isChatOpen) {
       setMascotState('idle');
     }
-  }, []);
+  }, [isChatOpen]);
 
-  // Hover helper handler with bridge protection and dismissal respect
+  // Hover helper (only triggers if user requested help)
   const setHoverHelper = useCallback((meta) => {
     if (!meta || !meta.title) return;
-    // CRITICAL: Respect explicit dismissal; hovering must NOT reopen a dismissed bubble
-    if (hasUserClosedBubbleRef.current) return;
-    if (currentInteractionRef.current.priority > 3) return; // Don't interrupt active form field coaching
+    if (hasUserClosedBubbleRef.current && !isChatOpen) return;
+    if (currentInteractionRef.current.priority > 3) return;
 
     if (hoverBridgeTimerRef.current) {
       clearTimeout(hoverBridgeTimerRef.current);
@@ -249,132 +256,189 @@ export const MascotProvider = ({ children }) => {
 
     setMessageWithPriority({
       title: meta.title,
-      text: meta.description || '',
+      text: meta.description,
       example: meta.example || null,
       priority: 3,
       source: 'hover'
-    }, 'attentive', 7000);
-  }, [setMessageWithPriority]);
+    }, 'explaining');
+  }, [isChatOpen, setMessageWithPriority]);
 
   const clearHoverHelper = useCallback(() => {
-    if (isHoveringBubbleRef.current) {
-      // User moved pointer onto speech bubble; keep it open!
-      return;
-    }
-
-    if (hoverBridgeTimerRef.current) {
-      clearTimeout(hoverBridgeTimerRef.current);
-    }
+    if (currentInteractionRef.current.source !== 'hover') return;
+    if (hoverBridgeTimerRef.current) clearTimeout(hoverBridgeTimerRef.current);
 
     hoverBridgeTimerRef.current = setTimeout(() => {
-      if (!isHoveringBubbleRef.current && currentInteractionRef.current.source === 'hover') {
-        currentInteractionRef.current.priority = 1;
-        setMascotState('idle');
-        setIsBubbleVisible(false); // Cleanly close bubble when hover concludes
-      }
-    }, 280);
+      if (isHoveringBubbleRef.current) return;
+      currentInteractionRef.current.priority = 1;
+      setMascotState('idle');
+      setIsBubbleVisible(false);
+    }, 180);
   }, []);
 
-  // Form Field Validation Coach (strictly local privacy; never logged or transmitted)
+  // Form Field Validation Coaching (only on focused form inputs)
   const setFieldFocus = useCallback((fieldName) => {
     activeFocusedFieldRef.current = fieldName;
-    const config = FIELD_VALIDATION_REGISTRY[fieldName];
-    if (!config) return;
-
-    setMessageWithPriority({
-      title: `${config.label} Guide`,
-      text: config.instructions,
-      example: config.example ? `Example: ${config.example}` : null,
-      format: config.format,
-      priority: 4,
-      source: `field-${fieldName}`
-    }, 'thinking');
-  }, [setMessageWithPriority]);
-
-  const handleFieldChange = useCallback((fieldName, value, onApplySuggestion) => {
-    const config = FIELD_VALIDATION_REGISTRY[fieldName];
-    if (!config) return { isValid: true };
-
-    const validationResult = config.validate(value);
-    let suggestion = null;
-
-    if (config.suggestCorrection) {
-      suggestion = config.suggestCorrection(value);
-    }
-
-    // Handle empty optional fields cleanly without false "Verified" celebrations
-    if (validationResult.isOptionalEmpty) {
+    const rule = FIELD_VALIDATION_REGISTRY[fieldName];
+    if (rule && rule.hint) {
       setMessageWithPriority({
-        title: `${config.label} (Optional)`,
-        text: validationResult.message,
-        example: config.example ? `Example: ${config.example}` : null,
-        priority: 3,
-        source: `field-${fieldName}`
-      }, 'idle');
-      return validationResult;
+        title: `Field: ${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`,
+        text: rule.hint,
+        priority: 4,
+        source: 'form-coach'
+      }, 'listening');
     }
-
-    setMessageWithPriority({
-      title: validationResult.isValid ? `${config.label} Verified` : `${config.label} Notice`,
-      text: validationResult.message,
-      example: config.example ? `Expected Format: ${config.example}` : null,
-      suggestion: suggestion,
-      onApplySuggestion: suggestion ? () => onApplySuggestion(suggestion) : null,
-      priority: 4,
-      source: `field-${fieldName}`
-    }, validationResult.isValid ? 'success' : 'warning');
-
-    return validationResult;
   }, [setMessageWithPriority]);
 
   const clearFieldFocus = useCallback((fieldName) => {
     if (activeFocusedFieldRef.current === fieldName) {
       activeFocusedFieldRef.current = null;
     }
-
-    // Apply any pending section change that arrived while the form field was focused
-    if (pendingSectionRef.current) {
-      const nextSec = pendingSectionRef.current;
-      pendingSectionRef.current = null;
-      setActiveSection(nextSec);
-    }
-
-    if (currentInteractionRef.current.source === `field-${fieldName}`) {
+    if (currentInteractionRef.current.source === 'form-coach') {
       currentInteractionRef.current.priority = 1;
       setMascotState('idle');
       setIsBubbleVisible(false);
     }
+    if (pendingSectionRef.current) {
+      setActiveSection(pendingSectionRef.current);
+      pendingSectionRef.current = null;
+    }
   }, []);
 
-  // Explicit Help Request (e.g. clicking Barnaby or Help button)
-  const requestHelp = useCallback((topicOrSection = null) => {
-    setHasUserClosedBubble(false);
-    hasUserClosedBubbleRef.current = false;
+  const handleFieldChange = useCallback((fieldName, value, onApplyCorrection = null) => {
+    const rule = FIELD_VALIDATION_REGISTRY[fieldName];
+    if (!rule) return;
+
+    const validation = rule.validate(value);
+    if (!validation.isValid && validation.message) {
+      const suggestion = rule.suggestCorrection ? rule.suggestCorrection(value) : null;
+      setMessageWithPriority({
+        title: `Check ${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`,
+        text: validation.message,
+        suggestion: suggestion,
+        onApplySuggestion: suggestion && onApplyCorrection ? () => onApplyCorrection(suggestion) : null,
+        priority: 4,
+        source: 'form-coach'
+      }, 'warning');
+    } else {
+      currentInteractionRef.current.priority = 1;
+      setMascotState('idle');
+      setIsBubbleVisible(false);
+    }
+  }, [setMessageWithPriority]);
+
+  // Request help manually (opens chatbot)
+  const requestHelp = useCallback(() => {
+    setIsChatOpen(true);
     setIsMinimized(false);
     setIsDismissed(false);
+    setMascotState('greeting');
+  }, []);
 
-    const sectionToExplain = topicOrSection || activeSection;
-    const sectionInfo = SECTION_CONTEXTS[sectionToExplain];
+  // Chat controls
+  const openChat = useCallback(() => {
+    setIsChatOpen(true);
+    setIsMinimized(false);
+    setIsDismissed(false);
+    setMascotState('greeting');
+  }, []);
 
-    if (sectionInfo) {
-      setMessageWithPriority({
-        title: sectionInfo.title,
-        text: sectionInfo.description,
-        example: sectionInfo.actionHint,
-        priority: 3,
-        source: `explicit-${sectionToExplain}`
-      }, 'explaining', 9000);
-    } else {
-      setMessageWithPriority({
-        title: 'Campus Companion Barnaby',
-        text: 'I am here to help you navigate academic programs, admissions criteria, and school events. Tap any section or card for details!',
-        priority: 3,
-        source: 'general-help'
-      }, 'greeting', 8000);
+  const closeChat = useCallback(() => {
+    setIsChatOpen(false);
+    setMascotState('idle');
+  }, []);
+
+  const toggleChat = useCallback(() => {
+    setIsChatOpen(prev => {
+      const next = !prev;
+      setMascotState(next ? 'greeting' : 'idle');
+      return next;
+    });
+  }, []);
+
+  const clearChat = useCallback(() => {
+    if (responseTimerRef.current) {
+      clearTimeout(responseTimerRef.current);
+      responseTimerRef.current = null;
     }
-  }, [activeSection, setMessageWithPriority]);
+    isRespondingRef.current = false;
+    setIsTyping(false);
+    setChatMessages([
+      {
+        id: 'welcome-' + Date.now(),
+        sender: 'barnaby',
+        text: "Hello! I am Barnaby, your campus guide. What would you like to know about the school? Feel free to ask about admissions, curriculum, events, or school contacts!",
+        topic: 'greeting',
+        timestamp: Date.now()
+      }
+    ]);
+    setDynamicSuggestedQuestions(getContextualSuggestedQuestions(currentPath));
+    setMascotState('idle');
+  }, [currentPath]);
 
-  // Window & Bubble Dismissal Controls (scoped to current page visit)
+  // Send message through context-aware conversational engine with multi-turn memory
+  const sendMessage = useCallback((text) => {
+    if (!text || !text.trim()) return;
+    if (isRespondingRef.current) return; // Prevent duplicate concurrent executions
+    isRespondingRef.current = true;
+
+    const cleanText = text.trim();
+    const userMsg = {
+      id: 'user-' + Date.now(),
+      sender: 'user',
+      text: cleanText,
+      timestamp: Date.now()
+    };
+
+    // 1. Pure state update for user message
+    setChatMessages(prev => [...prev, userMsg]);
+    setIsTyping(true);
+    setMascotState('thinking');
+
+    // 2. Clear any lingering response timer
+    if (responseTimerRef.current) {
+      clearTimeout(responseTimerRef.current);
+      responseTimerRef.current = null;
+    }
+
+    // 3. Single external timer scheduled safely outside state updater
+    responseTimerRef.current = setTimeout(() => {
+      const currentMessages = chatMessagesRef.current;
+      const result = processUserMessage(cleanText, currentPath, config, currentMessages);
+      const uniqueMsgId = 'barnaby-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+      const barnabyMsg = {
+        id: uniqueMsgId,
+        sender: 'barnaby',
+        text: result.text,
+        structuredData: result.structuredData || null,
+        action: result.action || null,
+        topic: result.topic || null,
+        timestamp: Date.now()
+      };
+
+      setChatMessages(prev => {
+        // Bulletproof Deduplication: if the last message was from barnaby and has identical text within 2.5 seconds, ignore
+        const lastMsg = prev[prev.length - 1];
+        if (
+          lastMsg &&
+          lastMsg.sender === 'barnaby' &&
+          lastMsg.text === barnabyMsg.text &&
+          (Date.now() - (lastMsg.timestamp || 0) < 2500)
+        ) {
+          return prev;
+        }
+        return [...prev, barnabyMsg];
+      });
+
+      if (result.suggestedFollowUps && result.suggestedFollowUps.length > 0) {
+        setDynamicSuggestedQuestions(result.suggestedFollowUps);
+      }
+      setIsTyping(false);
+      setMascotState(result.expression || 'explaining');
+      isRespondingRef.current = false;
+      responseTimerRef.current = null;
+    }, 280);
+  }, [currentPath, config]);
+
   const dismissBubble = useCallback(() => {
     clearAutoDismissTimer();
     setHasUserClosedBubble(true);
@@ -386,6 +450,7 @@ export const MascotProvider = ({ children }) => {
 
   const minimizeMascot = useCallback(() => {
     clearAutoDismissTimer();
+    setIsChatOpen(false);
     setIsBubbleVisible(false);
     setIsMinimized(true);
   }, [clearAutoDismissTimer]);
@@ -393,14 +458,13 @@ export const MascotProvider = ({ children }) => {
   const maximizeMascot = useCallback(() => {
     setIsMinimized(false);
     setIsDismissed(false);
-    setHasUserClosedBubble(false);
-    hasUserClosedBubbleRef.current = false;
-    setIsBubbleVisible(true);
-    setMascotState('explaining');
+    setIsChatOpen(true);
+    setMascotState('greeting');
   }, []);
 
   const dismissMascot = useCallback(() => {
     clearAutoDismissTimer();
+    setIsChatOpen(false);
     setIsBubbleVisible(false);
     setIsDismissed(true);
   }, [clearAutoDismissTimer]);
@@ -408,9 +472,7 @@ export const MascotProvider = ({ children }) => {
   const restoreMascot = useCallback(() => {
     setIsDismissed(false);
     setIsMinimized(false);
-    setHasUserClosedBubble(false);
-    hasUserClosedBubbleRef.current = false;
-    setIsBubbleVisible(true);
+    setIsChatOpen(true);
     setMascotState('greeting');
   }, []);
 
@@ -424,6 +486,18 @@ export const MascotProvider = ({ children }) => {
 
   return (
     <MascotContext.Provider value={{
+      // Chatbot Engine API
+      isChatOpen,
+      isTyping,
+      chatMessages,
+      openChat,
+      closeChat,
+      toggleChat,
+      clearChat,
+      sendMessage,
+      suggestedQuestions: dynamicSuggestedQuestions || getContextualSuggestedQuestions(currentPath),
+
+      // Core Mascot State & Backward Compatibility
       mascotState,
       setMascotState,
       isMinimized,

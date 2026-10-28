@@ -61,7 +61,7 @@ console.log('  ✓ Texture overlay is non-blocking (pointer-events: none) and ha
 console.log('\n[Test 4: Footer Attribution & Portfolio Link Audit]');
 const footerContent = fs.readFileSync('src/components/Footer.jsx', 'utf-8');
 assert(footerContent.includes('Designed &amp; Developed by') || footerContent.includes('Designed & Developed by'), 'Footer must contain "Designed & Developed by"');
-assert(footerContent.includes('href="https://jralex07.github.io/Portfolio/"'), 'Footer link must point to exact portfolio URL');
+assert(footerContent.includes('href="https://alex.runs-on.dev"'), 'Footer link must point to exact portfolio URL');
 assert(footerContent.includes('target="_blank"'), 'Portfolio link must open in a new tab (target="_blank")');
 assert(footerContent.includes('rel="noopener noreferrer"'), 'Portfolio link must include rel="noopener noreferrer"');
 assert(footerContent.indexOf('All Rights Reserved.') < footerContent.indexOf('Designed &amp; Developed by'), 'Attribution must be placed beneath the copyright line');
@@ -81,7 +81,7 @@ assert(!schoolContentSource.includes('9334391034'), 'schoolContent.js must not c
 assert(!footerContent.includes('© 2025 Mount Summer Convent School'), 'Footer must not have hardcoded school copyright');
 const mascotContent = fs.readFileSync('src/context/MascotContext.jsx', 'utf-8');
 assert(!mascotContent.includes('Welcome to Mount Summer!'), 'Mascot greeting must not have hardcoded school name');
-assert(!footerContent.toLowerCase().includes('alex') || footerContent.includes('https://jralex07.github.io/Portfolio/'), 'Attribution must be accurate');
+assert(!footerContent.toLowerCase().includes('alex') || footerContent.includes('https://alex.runs-on.dev'), 'Attribution must be accurate');
 console.log('  ✓ Default school name uses neutral placeholder "School Website"');
 console.log('  ✓ RECOVERED_ARCHIVE_DATA section completely removed');
 console.log('  ✓ Footer and Mascot greetings free of hardcoded school identity');

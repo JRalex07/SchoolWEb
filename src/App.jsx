@@ -6,6 +6,7 @@ import { Footer } from './components/Footer';
 import { NotificationModal } from './components/NotificationModal';
 import { MascotProvider } from './context/MascotProvider';
 import { MascotAssistant } from './components/Mascot/MascotAssistant';
+import { SEO } from './components/SEO';
 
 // Code-split pages for performance optimization & instantaneous initial load
 const HomePage = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
@@ -67,6 +68,7 @@ export function App() {
       <BrowserRouter>
         <MascotProvider>
           <ScrollToTop />
+          <SEO />
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Navbar />
             <div style={{ flex: '1 0 auto' }}>

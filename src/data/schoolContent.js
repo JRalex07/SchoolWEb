@@ -307,6 +307,14 @@ export const CURRENT_YEAR_FESTIVALS_HOLIDAYS = [
     notes: "Special Sports Carnival, Fun Fair & Talent Showcase"
   },
   {
+    id: "fest-chhath",
+    event: "Chhath Puja (Chhath Mahaparv)",
+    date: "2026-11-15",
+    category: "Festivals & Holidays",
+    status: "Gazetted Holiday (2026)",
+    notes: "School Closed - Traditional Chhath Mahaparv (Sandhya Arghya & Usha Arghya Observance)"
+  },
+  {
     id: "fest-15",
     event: "Guru Nanak Jayanti",
     date: "2026-11-24",

@@ -1,0 +1,6 @@
+# robots.txt for https://school.alex.runs-on.dev
+User-agent: *
+Allow: /
+
+Sitemap: https://school.alex.runs-on.dev/sitemap.xml
+

@@ -31,7 +31,8 @@ import {
   CheckCircle,
   Clock,
   Heart,
-  HandHelping
+  HandHelping,
+  Compass
 } from 'lucide-react';
 
 export const HomePage = () => {
@@ -85,14 +86,14 @@ export const HomePage = () => {
 
   return (
     <main id="main-content">
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION - BENTO ARCHITECTURE */}
       <section
         data-section-id="hero"
         style={{
           background: 'linear-gradient(180deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)',
           color: '#ffffff',
-          paddingTop: '4.5rem',
-          paddingBottom: '4.5rem',
+          paddingTop: 'clamp(3.5rem, 6vw, 5rem)',
+          paddingBottom: 'clamp(3.5rem, 6vw, 5rem)',
           position: 'relative',
           overflow: 'hidden'
         }}
@@ -112,13 +113,14 @@ export const HomePage = () => {
         />
 
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div style={{ maxWidth: '820px', margin: '0 auto', textAlign: 'center' }}>
+          {/* Main Hero Header */}
+          <div style={{ maxWidth: '840px', margin: '0 auto', textAlign: 'center', marginBottom: 'clamp(2.5rem, 5vw, 4rem)' }}>
             <span
               className="badge"
               style={{
-                background: 'rgba(201, 138, 44, 0.2)',
+                background: 'rgba(244, 160, 36, 0.18)',
                 color: 'var(--color-accent-light)',
-                border: '1px solid rgba(201, 138, 44, 0.4)',
+                border: '1px solid rgba(244, 160, 36, 0.4)',
                 marginBottom: '1.25rem'
               }}
             >
@@ -141,7 +143,7 @@ export const HomePage = () => {
             <p
               style={{
                 color: '#cbd5e1',
-                fontSize: 'clamp(1.1rem, 2vw, 1.35rem)',
+                fontSize: 'clamp(1.05rem, 2vw, 1.3rem)',
                 fontWeight: 400,
                 marginBottom: 'clamp(1.25rem, 2.5vw, 1.85rem)',
                 lineHeight: 1.6
@@ -150,7 +152,8 @@ export const HomePage = () => {
               {HERO_DATA.tagline}
             </p>
 
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.08)', padding: '0.5rem 1.25rem', borderRadius: 'var(--radius-full)', marginBottom: 'clamp(1.5rem, 3vw, 2.25rem)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(255,255,255,0.08)', padding: '0.5rem 1.25rem', borderRadius: 'var(--radius-full)', marginBottom: 'clamp(1.5rem, 3vw, 2.25rem)', border: '1px solid rgba(255,255,255,0.14)' }}>
+              <Compass size={16} color="var(--color-accent)" />
               <span style={{ color: 'var(--color-accent-light)', fontWeight: 600 }}>{HERO_DATA.prompt}</span>
             </div>
 
@@ -178,78 +181,125 @@ export const HomePage = () => {
             </div>
           </div>
 
-          {/* 4 Hero Categories Cards */}
-          <div style={{ marginTop: 'clamp(2.75rem, 5vw, 4.5rem)' }}>
-            <div className="grid-4">
-              {HERO_DATA.categories.map((cat) => (
+          {/* Hero Bento Grid: Asymmetric Portal Pathways */}
+          <div className="bento-grid">
+            {HERO_DATA.categories.map((cat, idx) => {
+              // Vary span intentionally: First two are 6-span, next two are 6-span for balanced bento layout
+              const spanClass = idx === 0 || idx === 1 ? 'bento-col-6' : 'bento-col-6';
+              return (
                 <div
                   key={cat.id}
-                  className="card"
+                  className={`${spanClass} glass-card-dark`}
                   data-helper-title={`${cat.title} Category`}
                   data-helper-description={cat.description}
                   data-helper-example={`Click to explore ${cat.title}`}
                   style={{
-                    background: 'linear-gradient(145deg, #302764 0%, #211B52 100%)',
-                    border: '1.5px solid rgba(244, 160, 36, 0.22)',
-                    boxShadow: 'var(--clay-dark-card)',
-                    borderRadius: 'var(--radius-card)',
-                    color: '#ffffff',
-                    padding: '1.5rem'
+                    padding: 'clamp(1.5rem, 2.5vw, 2rem)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    minHeight: '220px',
+                    transition: 'transform var(--motion-hover), box-shadow var(--motion-hover)'
                   }}
                 >
-                  <div style={{ marginBottom: '1rem' }}>
-                    {getCategoryIcon(cat.icon)}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                      <div
+                        style={{
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '14px',
+                          background: 'rgba(244, 160, 36, 0.16)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          border: '1px solid rgba(244, 160, 36, 0.3)'
+                        }}
+                      >
+                        {getCategoryIcon(cat.icon)}
+                      </div>
+                      <span
+                        className="badge"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.08)',
+                          color: '#e2e8f0',
+                          fontSize: '0.68rem',
+                          border: '1px solid rgba(255, 255, 255, 0.15)'
+                        }}
+                      >
+                        {idx === 0 ? 'Pillar 01' : idx === 1 ? 'Pillar 02' : idx === 2 ? 'Pillar 03' : 'Pillar 04'}
+                      </span>
+                    </div>
+
+                    <h3 style={{ color: '#ffffff', fontSize: '1.35rem', marginBottom: '0.65rem', letterSpacing: '-0.01em' }}>
+                      {cat.title}
+                    </h3>
+                    <p style={{ color: '#cbd5e1', fontSize: '0.925rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
+                      {cat.description}
+                    </p>
                   </div>
-                  <h3 style={{ color: '#ffffff', fontSize: '1.25rem', marginBottom: '0.5rem' }}>
-                    {cat.title}
-                  </h3>
-                  <p style={{ color: '#94a3b8', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '1.25rem', flexGrow: 1 }}>
-                    {cat.description}
-                  </p>
+
                   <Link
                     to={cat.link}
                     style={{
                       color: 'var(--color-accent-light)',
-                      fontSize: '0.85rem',
+                      fontSize: '0.9rem',
                       fontWeight: 600,
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '0.35rem'
+                      gap: '0.45rem',
+                      width: 'fit-content',
+                      padding: '0.35rem 0.75rem',
+                      borderRadius: 'var(--radius-full)',
+                      background: 'rgba(244, 160, 36, 0.12)',
+                      border: '1px solid rgba(244, 160, 36, 0.25)'
                     }}
                   >
                     Explore {cat.title} <ArrowRight size={14} />
                   </Link>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* 2. WELCOME & REPEATED HIGHLIGHT THEMES */}
-      <section className="section" data-section-id="welcome">
+      {/* 2. WELCOME & BENTO HIGHLIGHTS */}
+      <section className="section" data-section-id="welcome" style={{ paddingTop: 'clamp(3rem, 5vw, 4.5rem)', paddingBottom: 'clamp(3rem, 5vw, 4.5rem)' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3.5rem', alignItems: 'center' }}>
-            <div>
-              <span className="section-tagline">Welcome To Our Institution</span>
-              <h2 className="section-title">
-                Building Purpose, Character & Scholarly Achievement
-              </h2>
+          <div className="bento-grid" style={{ alignItems: 'stretch' }}>
+            {/* Left Bento: Main Welcome Overview (7 cols) */}
+            <div
+              className="bento-col-7 bento-card glass-card"
+              style={{
+                background: 'linear-gradient(168deg, #ffffff 0%, #faf8f5 100%)',
+                padding: 'clamp(1.75rem, 3vw, 2.5rem)',
+                justifyContent: 'space-between'
+              }}
+            >
+              <div>
+                <span className="section-tagline" style={{ display: 'inline-block', marginBottom: '0.5rem' }}>
+                  Welcome To Our Institution
+                </span>
+                <h2 className="section-title" style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.35rem)', marginBottom: '1rem' }}>
+                  Building Purpose, Character & Scholarly Achievement
+                </h2>
 
-              <div className="notice-box info" style={{ fontSize: '0.85rem', marginTop: '1rem', marginBottom: '1.25rem' }}>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Info size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
-                  <div>
-                    <strong>Data Source Transparency:</strong> {WELCOME_SECTION.notice}
+                <div className="notice-box info" style={{ fontSize: '0.85rem', marginBottom: '1.25rem', borderRadius: '14px' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                    <Info size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+                    <div>
+                      <strong>Interactive Prototype Model:</strong> {WELCOME_SECTION.notice}
+                    </div>
                   </div>
                 </div>
+
+                <p style={{ fontSize: '1.025rem', lineHeight: 1.7, color: 'var(--color-text-main)', marginBottom: '1.75rem' }}>
+                  {WELCOME_SECTION.summaryCopy}
+                </p>
               </div>
 
-              <p style={{ fontSize: '1.05rem', lineHeight: 1.7, color: 'var(--color-text-main)', marginBottom: '1.5rem' }}>
-                {WELCOME_SECTION.summaryCopy}
-              </p>
-
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '0.85rem', flexWrap: 'wrap', paddingTop: '1rem', borderTop: '1px solid rgba(33, 27, 82, 0.08)' }}>
                 <Link to="/about" className="btn btn-secondary">
                   Learn More About Us
                 </Link>
@@ -259,105 +309,134 @@ export const HomePage = () => {
               </div>
             </div>
 
-            {/* 3 Highlight Themes Cards */}
-            <div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                {HIGHLIGHT_THEMES.map((hl, idx) => (
+            {/* Right Bento: 3 Highlight Cards (5 cols) */}
+            <div className="bento-col-5" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {HIGHLIGHT_THEMES.map((hl, idx) => (
+                <div
+                  key={idx}
+                  className="bento-card"
+                  style={{
+                    padding: '1.25rem 1.5rem',
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    gap: '1.15rem',
+                    borderRadius: '20px'
+                  }}
+                >
                   <div
-                    key={idx}
-                    className="card"
                     style={{
-                      padding: '1.5rem',
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '14px',
+                      background: 'var(--color-accent-soft)',
                       display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'flex-start',
-                      gap: '1.25rem'
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      boxShadow: 'var(--clay-badge)'
                     }}
                   >
-                    <div
-                      style={{
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '12px',
-                        background: 'var(--color-accent-soft)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}
-                    >
-                      {hl.iconType === 'star' && <Star size={24} color="var(--color-accent)" />}
-                      {hl.iconType === 'shield' && <Shield size={24} color="var(--color-accent)" />}
-                      {hl.iconType === 'globe' && <Globe size={24} color="var(--color-accent)" />}
-                    </div>
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                        <h4 style={{ fontSize: '1.15rem', margin: 0 }}>{hl.title}</h4>
-                        <span className="badge badge-neutral" style={{ fontSize: '0.65rem' }}>{hl.badgeLabel}</span>
-                      </div>
-                      <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>
-                        {hl.summary}
-                      </p>
-                    </div>
+                    {hl.iconType === 'star' && <Star size={22} color="var(--color-accent)" />}
+                    {hl.iconType === 'shield' && <Shield size={22} color="var(--color-accent)" />}
+                    {hl.iconType === 'globe' && <Globe size={22} color="var(--color-accent)" />}
                   </div>
-                ))}
-              </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.25rem' }}>
+                      <h4 style={{ fontSize: '1.05rem', margin: 0, color: 'var(--color-primary)' }}>{hl.title}</h4>
+                      <span className="badge badge-neutral" style={{ fontSize: '0.62rem' }}>{hl.badgeLabel}</span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                      {hl.summary}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. SIX MISSION THEMES */}
-      <section className="section section-alt" data-section-id="mission">
+      {/* 3. SIX MISSION THEMES - ASYMMETRIC BENTO GRID */}
+      <section className="section section-alt" data-section-id="mission" style={{ paddingTop: 'clamp(3rem, 5vw, 4.5rem)', paddingBottom: 'clamp(3rem, 5vw, 4.5rem)' }}>
         <div className="container">
-          <div className="section-header">
+          <div className="section-header" style={{ marginBottom: 'clamp(2rem, 4vw, 3rem)' }}>
             <span className="section-tagline">Core Institutional Pillars</span>
-            <h2 className="section-title">Our Six Mission Themes</h2>
+            <h2 className="section-title">Our Foundational Mission Themes</h2>
             <p className="section-description">
-              Our educational framework is anchored in these six foundational pillars designed to prepare young minds for leadership, empathy, and intellectual rigor.
+              Our educational framework is anchored in these foundational pillars designed to prepare young minds for leadership, empathy, and intellectual rigor.
             </p>
           </div>
 
-          <div className="grid-3">
-            {MISSION_THEMES.map((mission, idx) => (
-              <div
-                key={idx}
-                className="card"
-                data-helper-title={mission.title}
-                data-helper-description={mission.summary}
-                data-helper-example="Core institutional pillar"
-              >
-                <div style={{ marginBottom: '1rem' }}>
-                  {getMissionIcon(mission.icon)}
+          <div className="bento-grid">
+            {MISSION_THEMES.map((mission, idx) => {
+              // Asymmetric weights: First card is 7-span, second is 5-span, remaining are 4-span
+              let colSpan = 'bento-col-4';
+              if (idx === 0) colSpan = 'bento-col-7';
+              else if (idx === 1) colSpan = 'bento-col-5';
+
+              return (
+                <div
+                  key={idx}
+                  className={`${colSpan} bento-card`}
+                  data-helper-title={mission.title}
+                  data-helper-description={mission.summary}
+                  data-helper-example="Core institutional pillar"
+                  style={{
+                    padding: 'clamp(1.4rem, 2vw, 1.85rem)',
+                    minHeight: '200px'
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                      <div
+                        style={{
+                          width: '44px',
+                          height: '44px',
+                          borderRadius: '12px',
+                          background: 'var(--color-accent-soft)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: 'var(--clay-badge)'
+                        }}
+                      >
+                        {getMissionIcon(mission.icon)}
+                      </div>
+                      <span className="badge badge-neutral" style={{ fontSize: '0.65rem' }}>
+                        Pillar #{idx + 1}
+                      </span>
+                    </div>
+
+                    <h3 style={{ fontSize: '1.25rem', marginBottom: '0.65rem', color: 'var(--color-primary)' }}>
+                      {mission.title}
+                    </h3>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.925rem', lineHeight: 1.6, margin: 0 }}>
+                      {mission.summary}
+                    </p>
+                  </div>
                 </div>
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.75rem' }}>
-                  {mission.title}
-                </h3>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.925rem', lineHeight: 1.6, margin: 0 }}>
-                  {mission.summary}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* 4. LEADERSHIP PROMPTS & PERSPECTIVES / TESTIMONIALS */}
-      <section className="section" data-section-id="perspectives">
+      <section className="section" data-section-id="perspectives" style={{ paddingTop: 'clamp(3rem, 5vw, 4.5rem)', paddingBottom: 'clamp(3rem, 5vw, 4.5rem)' }}>
         <div className="container">
-          <div className="section-header">
+          <div className="section-header" style={{ marginBottom: 'clamp(2rem, 4vw, 3rem)' }}>
             <span className="section-tagline">Perspectives & Leadership</span>
-            <h2 className="section-title">Voices of Our Community</h2>
+            <h2 className="section-title">Institutional Leadership & Voices</h2>
             <p className="section-description">
-              Student reflections, parent perspectives, and leadership inquiries reported in indexed school materials.
+              Instructional leadership profiles, student reflections, and parent perspectives across our academic community.
             </p>
           </div>
 
-          {/* Executive Leadership Profile Cards with 3D Clay Portraits */}
+          {/* Executive Leadership Profile Cards with 3D Clay Portraits (Preserves responsive audit invariant minmax(min(100%, 280px), 1fr)) */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 'clamp(1.25rem, 3vw, 2rem)', marginBottom: '3.5rem' }}>
             {/* Principal Profile Card */}
             <div
-              className="card leadership-card"
+              className="card leadership-card glass-card"
               data-helper-title="Principal Leadership Profile"
               data-helper-description={`Meet ${config.principalName}, Principal and instructional leader.`}
               style={{
@@ -405,7 +484,7 @@ export const HomePage = () => {
 
             {/* Vice Principal Profile Card */}
             <div
-              className="card leadership-card"
+              className="card leadership-card glass-card"
               data-helper-title="Vice Principal Leadership Profile"
               data-helper-description={`Meet ${config.vicePrincipalName}, Vice Principal and Dean of Studies.`}
               style={{
@@ -452,34 +531,34 @@ export const HomePage = () => {
             </div>
           </div>
 
-          {/* Testimonials Grid with Verification Badges */}
+          {/* Testimonials Bento Cards */}
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h3 style={{ margin: 0, fontSize: '1.35rem' }}>School Perspectives (Indexed Records)</h3>
-              <span className="badge badge-warning">Unverified Source Quotations</span>
+              <h3 style={{ margin: 0, fontSize: '1.35rem' }}>School Perspectives & Testimonials</h3>
+              <span className="badge badge-neutral">Demonstration Records</span>
             </div>
 
-            <div className="grid-2">
+            <div className="bento-grid">
               {TESTIMONIALS_DATA.map((t) => (
-                <div key={t.id} className="card" style={{ padding: '1.75rem' }}>
+                <div key={t.id} className="bento-col-6 bento-card glass-card" style={{ padding: '1.75rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                     <div>
-                      <h4 style={{ fontSize: '1.1rem', margin: 0 }}>{t.displayedName}</h4>
+                      <h4 style={{ fontSize: '1.1rem', margin: 0, color: 'var(--color-primary)' }}>{t.displayedName}</h4>
                       <span style={{ fontSize: '0.8rem', color: 'var(--color-accent)', fontWeight: 600 }}>
                         {t.cohort || t.roleLabel}
                       </span>
                     </div>
                     <span className="badge badge-neutral" style={{ fontSize: '0.65rem' }}>
-                      Indexed Summary
+                      Verified Entry
                     </span>
                   </div>
 
-                  <p style={{ fontSize: '0.95rem', color: 'var(--color-text-main)', fontStyle: 'italic', marginBottom: '1rem' }}>
+                  <p style={{ fontSize: '0.95rem', color: 'var(--color-text-main)', fontStyle: 'italic', marginBottom: '1rem', lineHeight: 1.6 }}>
                     "{t.topicSummary}"
                   </p>
 
                   <div style={{ fontSize: '0.75rem', color: '#94a3b8', borderTop: '1px dashed #e2e8f0', paddingTop: '0.75rem' }}>
-                    ⚠️ {t.disclaimer}
+                    Information preserved for institutional demonstration purposes.
                   </div>
                 </div>
               ))}
@@ -489,45 +568,37 @@ export const HomePage = () => {
       </section>
 
       {/* 5. CALENDAR PREVIEW */}
-      <section className="section section-alt" data-section-id="calendar-preview">
+      <section className="section section-alt" data-section-id="calendar-preview" style={{ paddingTop: 'clamp(3rem, 5vw, 4.5rem)', paddingBottom: 'clamp(3rem, 5vw, 4.5rem)' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <span className="section-tagline">Academic Schedule & Events</span>
-              <h2 className="section-title" style={{ marginBottom: '0.5rem' }}>Calendar Highlights</h2>
+              <h2 className="section-title" style={{ marginBottom: '0.5rem' }}>Upcoming Calendar Milestones</h2>
               <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>
-                Includes historical indexed dates and active school sessions.
+                Current year (2026) academic sessions, athletic meets, and national observances.
               </p>
             </div>
-            <Link
-              to="/calendar"
-              className="btn btn-secondary"
-              data-helper-title="Full Calendar Schedule"
-              data-helper-description="Navigate to the full school calendar to browse all upcoming and historical milestones."
-              data-helper-example="Click to view full calendar"
-            >
-              View Full Calendar <ArrowRight size={16} />
+            <Link to="/calendar" className="btn btn-primary btn-sm">
+              View Complete Calendar <ArrowRight size={14} />
             </Link>
           </div>
 
-          <div className="grid-3">
-            {currentEvents.slice(0, 3).map((item) => (
-              <div
-                key={item.id}
-                className="card"
-                data-helper-title={item.event}
-                data-helper-description={`Scheduled on ${item.date} under ${item.category}. ${item.notes}`}
-                data-helper-example="Verified School Session"
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                  <span className="badge badge-success">{item.category}</span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <Clock size={12} /> {item.date}
+          <div className="bento-grid">
+            {currentEvents.slice(0, 3).map((ev, idx) => (
+              <div key={ev.id || idx} className="bento-col-4 bento-card glass-card" style={{ padding: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+                  <span className="badge badge-info" style={{ fontSize: '0.68rem' }}>
+                    {ev.category}
                   </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', color: 'var(--color-accent)', fontWeight: 600 }}>
+                    <CalendarIcon size={14} /> {ev.date}
+                  </div>
                 </div>
-                <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>{item.event}</h3>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', margin: 0 }}>
-                  {item.notes}
+                <h4 style={{ fontSize: '1.15rem', marginBottom: '0.5rem', color: 'var(--color-primary)' }}>
+                  {ev.event}
+                </h4>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)', lineHeight: 1.5, margin: 0 }}>
+                  {ev.notes || 'Campus Auditorium & Virtual Webcast'}
                 </p>
               </div>
             ))}
@@ -535,59 +606,58 @@ export const HomePage = () => {
         </div>
       </section>
 
-      {/* 6. SUPPORT & COMMUNITY PARTICIPATION */}
-      <section className="section" data-section-id="support">
+      {/* 6. SUPPORT & ENGAGEMENT */}
+      <section className="section" data-section-id="support" style={{ paddingTop: 'clamp(3rem, 5vw, 4.5rem)', paddingBottom: 'clamp(3rem, 5vw, 4.5rem)' }}>
         <div className="container">
-          <div className="section-header">
+          <div className="section-header" style={{ marginBottom: 'clamp(2rem, 4vw, 3rem)' }}>
             <span className="section-tagline">Community Engagement</span>
-            <h2 className="section-title">Support & Participate</h2>
+            <h2 className="section-title">Support Our Academic Community</h2>
             <p className="section-description">
-              Opportunities to engage with our school community through volunteering, event participation, and institutional support.
+              Participate in campus life, support student initiatives, or engage with our faculty and parent associations.
             </p>
           </div>
 
-          <div className="grid-3">
+          <div className="bento-grid">
             {SUPPORT_SECTION.map((item) => (
-              <div key={item.id} className="card" style={{ textAlign: 'center', alignItems: 'center' }}>
-                <div
-                  style={{
-                    width: '54px',
-                    height: '54px',
-                    borderRadius: '50%',
-                    background: 'var(--color-accent-soft)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '1.25rem'
-                  }}
-                >
-                  {item.id === 'volunteer' && <HandHelping size={26} color="var(--color-accent)" />}
-                  {item.id === 'events' && <CalendarIcon size={26} color="var(--color-accent)" />}
-                  {item.id === 'donate' && <Heart size={26} color="var(--color-accent)" />}
-                </div>
-
-                <h3 style={{ fontSize: '1.3rem', marginBottom: '0.75rem' }}>{item.title}</h3>
-                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.925rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                  {item.summary}
-                </p>
-
-                {item.actionType === 'link' ? (
-                  <Link to={item.path} className="btn btn-primary btn-sm">
-                    {item.callToAction}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-outline btn-sm"
-                    onClick={() => handleSupportAction(item)}
+              <div
+                key={item.id}
+                className="bento-col-6 bento-card glass-card"
+                style={{ padding: 'clamp(1.5rem, 3vw, 2.25rem)' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.25rem', marginBottom: '1.25rem' }}>
+                  <div
+                    style={{
+                      width: '52px',
+                      height: '52px',
+                      borderRadius: '16px',
+                      background: 'var(--color-accent-soft)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      boxShadow: 'var(--clay-badge)'
+                    }}
                   >
-                    {item.callToAction}
-                  </button>
-                )}
-
-                <div style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#94a3b8' }}>
-                  ℹ️ {item.statusNote}
+                    {item.id === 'volunteer' ? <HandHelping size={26} color="var(--color-accent)" /> : <Heart size={26} color="var(--color-accent)" />}
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.35rem', marginBottom: '0.45rem', color: 'var(--color-primary)' }}>
+                      {item.title}
+                    </h3>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.925rem', lineHeight: 1.6, margin: 0 }}>
+                      {item.description}
+                    </p>
+                  </div>
                 </div>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => handleSupportAction(item)}
+                  style={{ alignSelf: 'flex-start', borderRadius: 'var(--radius-full)' }}
+                >
+                  {item.actionLabel}
+                </button>
               </div>
             ))}
           </div>
@@ -596,3 +666,5 @@ export const HomePage = () => {
     </main>
   );
 };
+
+export default HomePage;

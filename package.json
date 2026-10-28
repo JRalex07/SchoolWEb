@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-routes.mjs",
     "preview": "vite preview",
-    "test": "node tests/phase1-p0.test.mjs && node tests/phase2-p1.test.mjs && node tests/phase3-p2.test.mjs && node tests/mobile-mascot-cta-audit.test.mjs && node tests/fast-refresh-audit.test.mjs && node tests/performance-responsive-audit.test.mjs"
+    "test": "node tests/phase1-p0.test.mjs && node tests/phase2-p1.test.mjs && node tests/phase3-p2.test.mjs && node tests/mobile-mascot-cta-audit.test.mjs && node tests/fast-refresh-audit.test.mjs && node tests/performance-responsive-audit.test.mjs && node tests/barnaby-chat-assistant.test.mjs && node tests/seo-technical-audit.test.mjs && node tests/github-workflow-audit.test.mjs && node tests/full-qa-audit.test.mjs"
   },
   "dependencies": {
     "framer-motion": "^14.0.0",
