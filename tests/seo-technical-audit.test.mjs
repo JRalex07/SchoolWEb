@@ -1,6 +1,7 @@
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
+import { execSync } from 'node:child_process';
 
 console.log('=== RUNNING TECHNICAL SEO AUDIT ===\n');
 
@@ -22,6 +23,12 @@ function it(name, fn) {
 
 const DOMAIN = 'https://school.alex.runs-on.dev';
 const DIST_DIR = path.resolve('dist');
+
+// Ensure dist is built before auditing build artifacts
+if (!fs.existsSync(DIST_DIR) || !fs.existsSync(path.join(DIST_DIR, 'robots.txt'))) {
+  console.log('  ➜ dist not found or incomplete. Building production assets prior to SEO audit...');
+  execSync('npm run build', { stdio: 'inherit' });
+}
 
 // 1. Robots.txt and Sitemap.xml Invariants
 console.log('[Test Suite 1: Robots.txt & Sitemap.xml Directives]');

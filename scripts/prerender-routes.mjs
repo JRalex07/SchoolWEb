@@ -70,16 +70,35 @@ function run() {
 
   // Ensure sitemap.xml exists in dist
   const sitemapSrc = path.resolve('public/sitemap.xml');
+  const sitemapDest = path.join(DIST_DIR, 'sitemap.xml');
   if (fs.existsSync(sitemapSrc)) {
-    fs.copyFileSync(sitemapSrc, path.join(DIST_DIR, 'sitemap.xml'));
+    fs.copyFileSync(sitemapSrc, sitemapDest);
     console.log('  ✓ Verified sitemap.xml in dist');
+  } else {
+    const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${DOMAIN}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>${DOMAIN}/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>${DOMAIN}/admissions</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>${DOMAIN}/academics</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>${DOMAIN}/calendar</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>${DOMAIN}/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>${DOMAIN}/faith</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+</urlset>`;
+    fs.writeFileSync(sitemapDest, sitemapContent, 'utf-8');
+    console.log('  ✓ Generated fallback sitemap.xml in dist');
   }
 
   // Ensure robots.txt exists in dist
   const robotsSrc = path.resolve('public/robots.txt');
+  const robotsDest = path.join(DIST_DIR, 'robots.txt');
   if (fs.existsSync(robotsSrc)) {
-    fs.copyFileSync(robotsSrc, path.join(DIST_DIR, 'robots.txt'));
+    fs.copyFileSync(robotsSrc, robotsDest);
     console.log('  ✓ Verified robots.txt in dist');
+  } else {
+    const robotsContent = `# robots.txt for ${DOMAIN}\nUser-agent: *\nAllow: /\n\nSitemap: ${DOMAIN}/sitemap.xml\n`;
+    fs.writeFileSync(robotsDest, robotsContent, 'utf-8');
+    console.log('  ✓ Generated fallback robots.txt in dist');
   }
 
   // Generate static HTML for each public route

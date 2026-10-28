@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
+import { execSync } from 'node:child_process';
 
 console.log('=== RUNNING FULL QUALITY ASSURANCE VERIFICATION ===\n');
 
@@ -22,6 +23,12 @@ function it(name, fn) {
 }
 
 const DIST_DIR = path.resolve('dist');
+
+// Ensure dist output is compiled and static assets are placed before validating QA flows
+if (!fs.existsSync(DIST_DIR) || !fs.existsSync(path.join(DIST_DIR, 'index.html'))) {
+  console.log('  ➜ dist not found or incomplete. Building production assets prior to QA verification...');
+  execSync('npm run build', { stdio: 'inherit' });
+}
 
 // Flow 1: Homepage loads directly with correct structure
 it('QA Flow 1: Homepage index.html is complete and well-formed', () => {

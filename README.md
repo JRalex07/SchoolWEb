@@ -189,3 +189,4 @@ This compiles optimized chunks into `/dist` and runs `scripts/prerender-routes.m
 - **Repository:** [https://github.com/JRalex07/SchoolWEb](https://github.com/JRalex07/SchoolWEb)
 
 All rights reserved © 2026.
+
